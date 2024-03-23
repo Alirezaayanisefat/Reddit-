@@ -1,6 +1,7 @@
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+// consider logging out
+// this must read from a file not the super class
 public class Loging extends AccountCreation {
     private String userEmail;
     private String password;
