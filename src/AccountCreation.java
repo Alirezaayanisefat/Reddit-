@@ -1,9 +1,13 @@
+// through thi class you get the main data from user
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 public class AccountCreation {
     private String userEmail;
     private String password;
+    private String userName;
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
     }
@@ -23,5 +27,9 @@ public class AccountCreation {
     }
     public String getPassword() {
         return password;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 }

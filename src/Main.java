@@ -1,10 +1,11 @@
 
 //import java.lang.Thread;
+import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main
 {
-    Scanner input = new Scanner(System.in);
     public static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
@@ -19,11 +20,14 @@ public class Main
         System.out.println("Please enter your email to create an account");
         String email = input.nextLine();
         account.setUserEmail(email);
+        System.out.println("please choose a user name for yourself");
+        String userName = input.next();
+        account.setUserName(userName);
         if(account.validateEmail())
-        {
+        {   Scanner input2 = new Scanner(System.in);
             clearScreen();
             System.out.println("Please enter your password to create an account");
-            String password = input.nextLine();
+            String password = input2.nextLine();
             account.setPassword(password);
             clearScreen();
             System.out.println("Your account was made successfully");
@@ -39,6 +43,12 @@ public class Main
         return displayAgain;
     }
     // remember the method above must be repeated if it returns false
+    public static void membership() throws IOException {
+
+        UserAccountFile user = new UserAccountFile();
+        user.createFile();
+        user.writeToFile();
+    }
     public static void login ()
     {
         Scanner input = new Scanner(System.in);
@@ -53,10 +63,10 @@ public class Main
             if (loging.emailCheck())
             {
                 while (true)
-                {
+                {   Scanner input2 = new Scanner(System.in);
                     clearScreen();
                     System.out.println("Please enter your password");
-                    String password = input.nextLine();
+                    String password = input2.nextLine();
                     loging.setPassword(password);
                     if (loging.passwordCheck())
                     {
@@ -114,14 +124,14 @@ public class Main
                 clearScreen();
                 System.out.println("1 _ Account creation\n2 _ User authentication <--");
             }
-            if (ch == 'r')
+            if (ch == 'e')
             {
                 break;
             }
         }
         return pointer % 2;
     }
-    public static void accessingProcess() throws InterruptedException {
+    public static void accessingProcess() throws InterruptedException, IOException {
       int order = displayAccessingMenu();
       Scanner input = new Scanner(System.in);
       while (true)
@@ -130,41 +140,35 @@ public class Main
           if (order == 1)
           {
               createAccount();
+              //membership();
               clearScreen();
-              System.out.println("Press 'R' if you want to return to the previous menu ");
+              System.out.println("Press 'Q' if you want to return to the previous menu ");
               char ch = input.next().charAt(0);
-              if (ch == 'r')
+              if (ch == 'q')
                 {
                     clearScreen();
                     //System.out.println("Press 'E' if you want to exit");
-                    displayAccessingMenu();
+                    order = displayAccessingMenu();
 
                 }
-              else if(ch == 'x')
-              {
-                    order = 0;
-              }
+
           }
           else
-          {     // if you want to go login first you hava to go to create account and from there go to login by pressing x
+          {     // if you want to go login first you have to go to create account and from there go to login by pressing x
               login();
               clearScreen();
-              System.out.println("Press 'R' if you want to return to the previous menu");
+              System.out.println("Press 'Q' if you want to return to the previous menu");
               char ch = input.next().charAt(0);
-              if (ch == 'r')
+              if (ch == 'q')
               {   clearScreen();
                   //System.out.println("Press 'O' if you want to exist");
-                  displayAccessingMenu();
-              }
-              else if(ch == 1)
-              {
-                  order = 1;
+                order = displayAccessingMenu();
               }
           }
       }
     }
     // remember the menu display after the Account creation method should be based on the return value of method above
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         accessingProcess();
     }
 }

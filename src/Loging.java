@@ -1,3 +1,4 @@
+// through this class you can gat the data that is needed and check the email and password
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 // consider logging out
@@ -5,6 +6,13 @@ import java.util.regex.Pattern;
 public class Loging extends AccountCreation {
     private String userEmail;
     private String password;
+    private String userName;
+
+    @Override
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public boolean validateEmail() {
         // Regular expression for email validation
@@ -30,15 +38,28 @@ public class Loging extends AccountCreation {
     }
 
     @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    @Override
     public String getPassword() {
         return password;
     }
     public boolean passwordCheck()
     {
-        return password.equals(super.getPassword());
+        boolean check = false;
+        if(password == super.getPassword()) {
+            check = true;
+        }
+        return check;
     }
     public boolean emailCheck()
     {
-        return userEmail.equals(super.getUserEmail());
+        boolean check = false;
+        if(userEmail == getUserEmail()) {
+            check = true;
+        }
+        return check;
     }
 }
