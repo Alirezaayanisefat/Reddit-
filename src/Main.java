@@ -3,6 +3,7 @@
       Study about throws InterruptedException.
        remember to add a break statement for accessing process method
        make user able to post with the same title several posts at writeToPostFile method make good names for files
+       add a comment deleting method
 */
 import java.lang.Thread;
 import java.io.File;
@@ -12,15 +13,16 @@ import java.io.IOException;
 import java.util.Scanner;
 public class Main
 {
-    //____________________________________Fields___________________________________________________________________________________
+//____________________________________Fields___________________________________________________________________________________
     private static final AccountCreation account = new AccountCreation();
     private static final Post post = new Post();
-    //_____________________________________________________________________________________________________________________________
+    private static final Comment comment = new Comment();
+//_____________________________________________________________________________________________________________________________
     public static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
-    //___________________________________________________________FILE FOR ACCOUNT CREATION___________________________________________
+//___________________________________________________________FILE FOR ACCOUNT CREATION___________________________________________
     public static String readFile() throws FileNotFoundException {
         File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\users\\" + account.getUserName());
         String data = null;
@@ -53,20 +55,36 @@ public class Main
             System.out.println("something went wrong");
         }
     }
-    //__________________________________________________________FILE FOR POSTING____________________________________________________
+//__________________________________________________________FILE FOR POSTING____________________________________________________
+    public static void crateCommentSection()
+    {
+    File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\" + post.getTitle() + "comments");
+         try
+         {
+             file.createNewFile();
+             FileWriter myWriter = new FileWriter(file);
+             myWriter.write(comment.getUserName() + "\n");
+             myWriter.write(comment.getBody() +"\n");
+         }
+        catch (IOException e)
+        {
+             System.out.println("something went wrong with comment section file");
+        }
+    }
+//______________________
     public static void writeToPostFile()
     {
         File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() + "\\" + post.getTitle());
         try{
             if (file.createNewFile())
-            {
-                FileWriter myWriter =new FileWriter("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() + "\\" + post.getTitle());
-                myWriter.write(post.getSubRedditName() + "\n");
+            {   crateCommentSection();
+                FileWriter myWriter =new FileWriter(file);
+                //myWriter.write(post.getSubRedditName() + "\n");
                 myWriter.write(post.getOwner() + "\n");
                 myWriter.write(post.getTitle() +"\n");
                 myWriter.write(post.getBody());
             }
-            else// make user able to post with the same title several posts
+            else
             {
                 System.out.println("You already have this title");
             }
@@ -76,31 +94,43 @@ public class Main
             System.out.println("Something went wrong");
         }
     }
+//_________________________
     public static void createDirectory()
     {
         File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName());
-        if (file.mkdir())
-        {
-            writeToPostFile();
+        while (true) {
+            if (!file.mkdir()) {
+                writeToPostFile();/// check again
+                break;
+            }
         }
-        else
+        File titleFile = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\"+ account.getUserName());
+        try {
+            titleFile.createNewFile();
+            FileWriter fileWriter = new FileWriter(titleFile);
+            fileWriter.write(post.getTitle() + "\n");
+        }
+        catch (IOException e)
         {
-            System.out.println("Something went wrong");
+            System.out.println("something went wrong with creating titleFile");
         }
     }
-    public static String readFromPostFile() throws FileNotFoundException {
-        File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\" + post.getTitle());
-        String data = null;
-        int returnSubRedditName = 0;
-        Scanner myReader = new Scanner(file);
-        while (myReader.hasNextLine())
-        {
-            data += myReader.nextLine();
-        }
-        myReader.close();
-        return data;
-    }
-    //__________________________________________________________POSTING PROCESS_____________________________________________________
+//______________
+//    public static void readFromPostFile() throws FileNotFoundException {
+//        File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\" + post.getTitle());
+//        String data;
+//        Scanner myReader = new Scanner(file);
+//        while (myReader.hasNextLine())
+//        {
+//            data = myReader.nextLine();
+//            System.out.println(data);
+//        }
+//        myReader.close();
+//    }
+/// comment file
+
+
+//__________________________________________________________POSTING PROCESS_____________________________________________________
     public static void createPost()
     {
         Scanner input = new Scanner(System.in);
@@ -119,10 +149,86 @@ public class Main
         System.out.println("Body: " + temp);
         createDirectory();
     }
-    //_____________________________________________________________________________________________________________________________
-    // Study about throws InterruptedException in next line.
-     public static void displayMainMenu()
-     {
+//____
+    public static void accessToPosts()
+    {
+        // reading titleFile
+        Scanner fileReader = new Scanner("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\"+ account.getUserName());
+        while (fileReader.hasNext())
+        {
+            System.out.println(fileReader.nextLine());
+        }
+        System.out.println("HELP:\nPress 'E' to create post\nPress 'R' to access to posts\nPress 'Q' to return to previous menu");
+        Scanner input = new Scanner(System.in);
+        char ch = input.next().charAt(0);
+        clearScreen();
+        switch (ch)
+        {
+            case 'e':
+                createPost();
+                clearScreen();
+                break;
+            case 'r':
+                // only prints the post
+                System.out.println("Enter the post title");
+                String title = input.nextLine();
+                clearScreen();
+                Scanner fileReader_2 = new Scanner("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName()+"\\"+ title);
+                while (fileReader_2.hasNextLine())
+                    System.out.println(fileReader_2.nextLine());
+                System.out.println("Press 'Q' to exit");
+                char c = input.next().charAt(0);
+                clearScreen();
+                if(c == 'q')
+                    return;
+                break;
+            case 'q':
+                break;
+        }
+    }
+//____________________________
+    public static void giveComment()
+    {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Please enter your user name to comment");
+        String str = input.nextLine();
+        comment.setUserName(str);
+        System.out.println("Write your comment");
+        str = input.nextLine();
+        comment.setBody(str);
+        return;
+    }
+    public static void seePost() throws FileNotFoundException {
+        clearScreen();
+        accessToPosts();
+        clearScreen();
+        System.out.println("Press 'C' to access to comment section\nPress 'Q' to quit");// what if creates a post and not just see it presses e not rat the accessTO post method
+        Scanner input = new Scanner(System.in);
+        char ch = input.next().charAt(0);
+        if(ch == 'q') {
+            clearScreen();
+            return;
+        }
+        System.out.println("Press 'C' if you want to see comment section");
+        if (ch == 'c')
+        {   clearScreen();
+            File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\" + post.getTitle() + "comments");
+            Scanner commentReader = new Scanner(file);
+            while (commentReader.hasNextLine())
+            {
+                System.out.println(commentReader.nextLine());
+            }
+        }
+        System.out.println("Press 'E' if you want to leave a comment");
+        if (ch == 'e')
+        {
+            clearScreen();
+            giveComment();
+        }
+    }
+//_____________________________________________________________________________________________________________________________
+// Study about throws InterruptedException in next line.
+     public static void displayMainMenu() throws FileNotFoundException {
          Scanner input = new Scanner(System.in);
          int pointer = 1;
          int printOnce = 1;
@@ -139,31 +245,31 @@ public class Main
              else if (ch == 's')
                  pointer++;
              else if (ch == 'e') {
-                 createPost();
+                 seePost();
                  break;
              }
              switch (pointer % 4)
              {
                  case 0:
                      clearScreen();
-                     System.out.println("1 _ Your profile\n 2 _ Subreddits you hava joined\n 3 _ Timeline\n 4 _ Your posts <--");
+                     System.out.println("1 _ Your profile\n2 _ Subreddits you hava joined\n3 _ Timeline\n4 _ Your posts <--");
                      break;
                  case 1:
                      clearScreen();
-                     System.out.println("1 _ Your profile <--\n 2 _ Subreddits you hava joined\n 3 _ Timeline\n 4 _ Your posts");
+                     System.out.println("1 _ Your profile <--\n2 _ Subreddits you hava joined\n3 _ Timeline\n4 _ Your posts");
                      break;
                  case 2:
                      clearScreen();
-                     System.out.println("1 _ Your profile\n 2 _ Subreddits you hava joined <--\n 3 _ Timeline\n 4 _ Your posts");
+                     System.out.println("1 _ Your profile\n2 _ Subreddits you hava joined <--\n3 _ Timeline\n4 _ Your posts");
                      break;
                  case 3:
                      clearScreen();
-                     System.out.println("1 _ Your profile\n 2 _ Subreddits you hava joined\n 3 _ Timeline <--\n 4 _ Your posts");
+                     System.out.println("1 _ Your profile\n2 _ Subreddits you hava joined\n3 _ Timeline <--\n4 _ Your posts");
                      break;
              }
          }
      }
-    //_______________________________________________________ACCESSING PROCESS_______________________________________________________________
+//_______________________________________________________ACCESSING PROCESS_______________________________________________________________
     public static void createAccount() throws InterruptedException {
         Scanner input = new Scanner(System.in);
         clearScreen();
@@ -192,6 +298,7 @@ public class Main
             clearScreen();
         }
     }
+//______________________________________________________________________________________________________________________
     public static void login () throws InterruptedException, FileNotFoundException {
         while (true)
         {
@@ -229,7 +336,7 @@ public class Main
             }
         }
     }
-    //________________________________________________________________________________________________________________________________
+//________________________________________________________________________________________________________________________________
     public static int displayAccessingMenu()
     {
         Scanner input = new Scanner(System.in);
@@ -269,6 +376,7 @@ public class Main
         }
         return pointer % 2;
     }
+//_________________________
     public static void accessingProcess() throws InterruptedException, FileNotFoundException {
       int order = displayAccessingMenu();
       Scanner input = new Scanner(System.in);
@@ -304,7 +412,7 @@ public class Main
       }
     }
 
-    //______________________________________________________________________________________________________________________________
+//______________________________________________________________________________________________________________________________
     public static void main(String[] args) throws InterruptedException, NullPointerException, FileNotFoundException{
         accessingProcess();
     }
