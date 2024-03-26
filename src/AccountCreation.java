@@ -11,9 +11,8 @@ public class AccountCreation {
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
     }
-
-    public String getUserEmail() {
-        return userEmail;
+    public void setPassword(String password) {
+        this.password = password;
     }
     public boolean validateEmail() {
         // Regular expression for email validation
@@ -22,13 +21,12 @@ public class AccountCreation {
         Matcher matcher = pattern.matcher(userEmail);
         return matcher.matches();
     }
-    public void setPassword(String password) {
-        this.password = password;
-    }
     public String getPassword() {
         return password;
     }
-
+    public String getUserEmail() {
+        return userEmail;
+    }
     public String getUserName() {
         return userName;
     }
