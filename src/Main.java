@@ -10,7 +10,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.io.BufferedWriter;
 public class Main
 {
 //____________________________________Fields___________________________________________________________________________________
@@ -18,28 +25,49 @@ public class Main
     private static final Post post = new Post();
     private static final Comment comment = new Comment();
 //_____________________________________________________________________________________________________________________________
+
     public static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
-//___________________________________________________________FILE FOR ACCOUNT CREATION___________________________________________
-    public static String readFile() throws FileNotFoundException {
-        File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\users\\" + account.getUserName());
-        String data = null;
-        Scanner myReader = new Scanner(file);
-        while (myReader.hasNextLine())
-        {
-            data += myReader.nextLine();
+    public static void sleep(long millis)
+    {
+        try {
+            Thread.sleep(millis);
         }
-        myReader.close();
-        return data;
+        catch (InterruptedException er)
+        {
+            System.out.println("Something went wrong");
+        }
     }
+
+//___________________________________________________________FILE FOR ACCOUNT CREATION___________________________________________
+
+    public static String readFile(){
+        try {
+            File file = new File("users\\" + account.getUserName());
+            String data = null;
+            Scanner myReader = new Scanner(file);
+            while (myReader.hasNextLine())
+            {
+                data += myReader.nextLine();
+            }
+            myReader.close();
+            return data;
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("could not read the account file");
+        }
+        return null;
+    }
+
     public static void writeToFile() {
-        File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\users\\" + account.getUserName());
+        File file = new File("users\\" + account.getUserName());
         try {
             if(file.createNewFile())
             {
-                FileWriter myWriter = new FileWriter("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\users\\" + account.getUserName());
+                FileWriter myWriter = new FileWriter(file);
                 myWriter.write(account.getUserName()+ "\n");
                 myWriter.write(account.getUserEmail()+ "\n");
                 myWriter.write(account.getPassword());
@@ -55,34 +83,36 @@ public class Main
             System.out.println("something went wrong");
         }
     }
+
 //__________________________________________________________FILE FOR POSTING____________________________________________________
-    public static void crateCommentSection()
-    {
-    File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\" + post.getTitle() + "comments");
-         try
-         {
-             file.createNewFile();
-             FileWriter myWriter = new FileWriter(file);
-             myWriter.write(comment.getUserName() + "\n");
-             myWriter.write(comment.getBody() +"\n");
-         }
-        catch (IOException e)
-        {
-             System.out.println("something went wrong with comment section file");
-        }
-    }
-//______________________
+
+//    public static void crateCommentSection()
+//    {
+//    File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Comments");
+//         try
+//         {
+//             file.createNewFile();
+//             FileWriter myWriter = new FileWriter(file);
+//             myWriter.write(comment.getUserName() + "\n");
+//             myWriter.write(comment.getBody() + "\n");
+//             myWriter.close();
+//         }
+//        catch (IOException e)
+//        {
+//             System.out.println("something went wrong with comment section file");
+//        }
+//    }
+
+
     public static void writeToPostFile()
     {
-        File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() + "\\" + post.getTitle());
+        File file = new File("Posts\\" + account.getUserName() + "\\" + post.getTitle());
         try{
             if (file.createNewFile())
-            {   crateCommentSection();
-                FileWriter myWriter =new FileWriter(file);
-                //myWriter.write(post.getSubRedditName() + "\n");
-                myWriter.write(post.getOwner() + "\n");
-                myWriter.write(post.getTitle() +"\n");
-                myWriter.write(post.getBody());
+            {
+                String data = post.getUserName() + "\n" + post.getTitle() + "\n" + post.getBody();
+                Path fileName = Path.of(file.toURI());
+                Files.writeString(fileName, data);
             }
             else
             {
@@ -94,21 +124,21 @@ public class Main
             System.out.println("Something went wrong");
         }
     }
-//_________________________
+
+
     public static void createDirectory()
     {
-        File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName());
-        while (true) {
-            if (!file.mkdir()) {
-                writeToPostFile();/// check again
-                break;
-            }
-        }
-        File titleFile = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\"+ account.getUserName());
+        File file = new File("Posts\\" + account.getUserName()+"\\"+ account.getUserName());
+        file.getParentFile().mkdir();
+        writeToPostFile();
         try {
-            titleFile.createNewFile();
-            FileWriter fileWriter = new FileWriter(titleFile);
-            fileWriter.write(post.getTitle() + "\n");
+            file.createNewFile();
+            String data = post.getTitle();
+            Path fileName = Path.of(file.toURI());
+            Files.write(fileName,
+                    (data+"\n").getBytes(StandardCharsets.UTF_8),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND);
         }
         catch (IOException e)
         {
@@ -131,34 +161,101 @@ public class Main
 
 
 //__________________________________________________________POSTING PROCESS_____________________________________________________
+
     public static void createPost()
     {
         Scanner input = new Scanner(System.in);
-        post.setOwner(account.getUserName());
+        String temp;
+        temp = account.getUserName();
+        post.setUserName(temp);
         System.out.print("Title: ");
-        String temp = input.nextLine();
+        temp = input.nextLine();
         post.setTitle(temp);
         clearScreen();
         System.out.println("Title: " + temp);
         System.out.println("Body: ");
-        temp = input.nextLine();// how to print a paragraph?????????????????????????
+        temp = input.nextLine();// how to get a paragraph?????????????????????????
         // probably hava to initials attributes
         post.setBody(temp);
         clearScreen();
-        System.out.println("Title: " + temp);
-        System.out.println("Body: " + temp);
+        System.out.println("Title: " + post.getTitle());
+        System.out.println("Body: " + post.getBody());
         createDirectory();
-    }
-//____
-    public static void accessToPosts()
-    {
-        // reading titleFile
-        Scanner fileReader = new Scanner("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\"+ account.getUserName());
-        while (fileReader.hasNext())
-        {
-            System.out.println(fileReader.nextLine());
+        File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + " Comments");
+        try{
+            file.createNewFile();
+            FileWriter myWriter = new FileWriter(file);
+            myWriter.write("Comment section :\n");
+            myWriter.close();
         }
-        System.out.println("HELP:\nPress 'E' to create post\nPress 'R' to access to posts\nPress 'Q' to return to previous menu");
+        catch (IOException e)
+        {
+            System.out.println("Comment section is not created");
+        }
+
+    }
+
+    public static void showPostDetails(String title){
+        File file = new File("Posts\\" + account.getUserName() +"\\"+ account.getUserName());
+        try {
+            Scanner fileReader=new Scanner(file);
+            List<String> list=new ArrayList<>();
+            while(fileReader.hasNextLine()){
+                list.add(fileReader.nextLine());
+            }
+            if(list.contains(title)){
+                String data;
+                File search = new File("Posts\\" + account.getUserName()+"\\"+ title);
+                Scanner fileReader_2 = new Scanner(search);
+                while (fileReader_2.hasNextLine()) {
+                    data = fileReader_2.nextLine();
+                    System.out.println(data);
+                }
+                fileReader_2.close();
+            } else {
+                System.out.println("There is no such a title");
+            }
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("Something went wrong");
+        }
+    }
+
+    public static void accessToPosts()  {
+        boolean firstPost;
+        // reading titleFile
+        File titleFile = new File("Posts\\" + account.getUserName() +"\\"+ account.getUserName());
+        try
+        {
+            Scanner fileReader = new Scanner(titleFile);
+            String data;
+            System.out.println("Titles :");
+            while (fileReader.hasNext()) {
+                data = fileReader.nextLine();
+                System.out.println('_' + data);
+            }
+            fileReader.close();
+        }
+        catch (FileNotFoundException e)
+        {
+            Scanner input = new Scanner(System.in);
+            System.out.println("You have no posts");
+            sleep(2000);
+            clearScreen();
+            System.out.println("Press 'Q' to return to main menu\nPress 'E' to your first post");
+            char ch = input.next().charAt(0);
+            if (ch == 'e') {
+                createPost();
+                post.setFirstPost(true);
+                return;
+            }
+            else if (ch == 'q') {
+                return;
+            }
+        }
+        System.out.println("_____________");
+        System.out.println("HELP:\nPress 'E' to create post\nPress 'R' to access to posts\nPress 'Q' to return to Main menu");
         Scanner input = new Scanner(System.in);
         char ch = input.next().charAt(0);
         clearScreen();
@@ -167,26 +264,30 @@ public class Main
             case 'e':
                 createPost();
                 clearScreen();
+                System.out.println("Your post with title "+ post.getTitle() + " is created successfully");
+                sleep(2000);
+                clearScreen();
                 break;
             case 'r':
                 // only prints the post
                 System.out.println("Enter the post title");
-                String title = input.nextLine();
+                String title;
+                Scanner input_2 = new Scanner(System.in);
+                title = input_2.nextLine();
+                showPostDetails(title);
                 clearScreen();
-                Scanner fileReader_2 = new Scanner("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName()+"\\"+ title);
-                while (fileReader_2.hasNextLine())
-                    System.out.println(fileReader_2.nextLine());
                 System.out.println("Press 'Q' to exit");
-                char c = input.next().charAt(0);
+                char quit = input.next().charAt(0);
                 clearScreen();
-                if(c == 'q')
+                if(quit == 'q')
                     return;
                 break;
             case 'q':
                 break;
         }
     }
-//____________________________
+
+
     public static void giveComment()
     {
         Scanner input = new Scanner(System.in);
@@ -196,13 +297,27 @@ public class Main
         System.out.println("Write your comment");
         str = input.nextLine();
         comment.setBody(str);
-        return;
+        File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Comments");
+        try
+        {
+            FileWriter myWriter = new FileWriter(file,true);
+            myWriter.write(comment.getUserName() + "\n");
+            myWriter.write(comment.getBody() + "\n");
+            myWriter.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println("something went wrong with comment section file");
+        }
     }
-    public static void seePost() throws FileNotFoundException {
+
+    public static void seePost() {
+        if (post.getFirstPost())
+            return;
         clearScreen();
         accessToPosts();
         clearScreen();
-        System.out.println("Press 'C' to access to comment section\nPress 'Q' to quit");// what if creates a post and not just see it presses e not rat the accessTO post method
+        System.out.println("Press 'C' to access to comment section\nPress 'Q' to quit");// what if creates a post and not just see it presses e not r at the accessTO post method
         Scanner input = new Scanner(System.in);
         char ch = input.next().charAt(0);
         if(ch == 'q') {
@@ -212,23 +327,36 @@ public class Main
         System.out.println("Press 'C' if you want to see comment section");
         if (ch == 'c')
         {   clearScreen();
-            File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\" + post.getTitle() + "comments");
-            Scanner commentReader = new Scanner(file);
-            while (commentReader.hasNextLine())
+            File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + " Comments");
+            try {
+                Scanner commentReader = new Scanner(file);
+                String data;
+                while (commentReader.hasNextLine())
+                {
+                    data = commentReader.nextLine();
+                    System.out.println(data);
+                }
+            }
+            catch (FileNotFoundException e)
             {
-                System.out.println(commentReader.nextLine());
+                System.out.println("could not read from the comment file");
             }
         }
-        System.out.println("Press 'E' if you want to leave a comment");
-        if (ch == 'e')
+        System.out.println("Press 'E' if you want to leave a comment\nPress 'Q' if you want to quit");
+        char commentOrLeave = input.next().charAt(0);
+        clearScreen();
+        if (commentOrLeave == 'e')
         {
             clearScreen();
             giveComment();
         }
+        else if (commentOrLeave == 'q')
+            return;
     }
+
 //_____________________________________________________________________________________________________________________________
 // Study about throws InterruptedException in next line.
-     public static void displayMainMenu() throws FileNotFoundException {
+     public static void displayMainMenu()  {
          Scanner input = new Scanner(System.in);
          int pointer = 1;
          int printOnce = 1;
@@ -269,8 +397,10 @@ public class Main
              }
          }
      }
+
 //_______________________________________________________ACCESSING PROCESS_______________________________________________________________
-    public static void createAccount() throws InterruptedException {
+
+    public static void createAccount() {
         Scanner input = new Scanner(System.in);
         clearScreen();
         System.out.println("Please enter your email to create an account");
@@ -288,18 +418,20 @@ public class Main
             account.setPassword(password);
             clearScreen();
             System.out.println("Your account was made successfully");
-            Thread.sleep(2000);
+            sleep(2000);
         }
         else
         {
             clearScreen();
             System.out.println("Wrong format for an email");
-            Thread.sleep(2000);
+            sleep(2000);
             clearScreen();
         }
     }
+
 //______________________________________________________________________________________________________________________
-    public static void login () throws InterruptedException, FileNotFoundException {
+
+    public static void login ()  {
         while (true)
         {
             Scanner input = new Scanner(System.in);
@@ -325,18 +457,20 @@ public class Main
             data = readFile();
             if (data.equals(tempData)) {
                 System.out.println("Welcome");
-                Thread.sleep(2000);
+                sleep(2000);
                 clearScreen();
                 displayMainMenu();
                 break;
             }
             else {
                 System.out.println("Password and email does not match any");
-                Thread.sleep(2000);
+                sleep(2000);
             }
         }
     }
+
 //________________________________________________________________________________________________________________________________
+
     public static int displayAccessingMenu()
     {
         Scanner input = new Scanner(System.in);
@@ -376,8 +510,8 @@ public class Main
         }
         return pointer % 2;
     }
-//_________________________
-    public static void accessingProcess() throws InterruptedException, FileNotFoundException {
+
+    public static void accessingProcess() {
       int order = displayAccessingMenu();
       Scanner input = new Scanner(System.in);
       while (true)
@@ -413,7 +547,7 @@ public class Main
     }
 
 //______________________________________________________________________________________________________________________________
-    public static void main(String[] args) throws InterruptedException, NullPointerException, FileNotFoundException{
+    public static void main(String[] args) throws  NullPointerException, FileNotFoundException{
         accessingProcess();
     }
 }

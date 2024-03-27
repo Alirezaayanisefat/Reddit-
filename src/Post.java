@@ -1,11 +1,19 @@
 public class Post {
     private String subRedditName;
-    private String owner;
+    private String userName;
     private String title;
     private String body;
+    private boolean hasFirstPost;
 
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setFirstPost(boolean firstPost) {
+        this.hasFirstPost = firstPost;
+    }
+    public boolean getFirstPost()
+    {
+        return hasFirstPost;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public void setSubRedditName(String subRedditName) {
@@ -24,8 +32,8 @@ public class Post {
         return body;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getUserName() {
+        return userName;
     }
 
     public String getSubRedditName() {
