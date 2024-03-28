@@ -24,9 +24,11 @@ public class Main
     private static final AccountCreation account = new AccountCreation();
     private static final Post post = new Post();
     private static final Comment comment = new Comment();
+    private static final SubReddit subReddit = new SubReddit();
 //_____________________________________________________________________________________________________________________________
 
-    public static void clearScreen() {
+    public static void clearScreen()
+    {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
@@ -41,76 +43,48 @@ public class Main
         }
     }
 
-//___________________________________________________________FILE FOR ACCOUNT CREATION___________________________________________
 
-    public static String readFile(){
-        try {
-            File file = new File("users\\" + account.getUserName());
-            String data = null;
-            Scanner myReader = new Scanner(file);
-            while (myReader.hasNextLine())
+//__________________________________________________________POSTING PROCESS_____________________________________________________
+
+    public static void addPostToSubReddit()
+    {
+        try{
+            List<String> list = new ArrayList<>();
+            File file = new File("SubReddit\\SubRedditNames");
+            Scanner input = new Scanner(file);
+            while (input.hasNextLine())
             {
-                data += myReader.nextLine();
+                list.add(input.nextLine());
             }
-            myReader.close();
-            return data;
-        }
-        catch (FileNotFoundException e)
-        {
-            System.out.println("could not read the account file");
-        }
-        return null;
-    }
-
-    public static void writeToFile() {
-        File file = new File("users\\" + account.getUserName());
-        try {
-            if(file.createNewFile())
-            {
-                FileWriter myWriter = new FileWriter(file);
-                myWriter.write(account.getUserName()+ "\n");
-                myWriter.write(account.getUserEmail()+ "\n");
-                myWriter.write(account.getPassword());
-                myWriter.close();
+            if (list.contains(post.getSubRedditName())) {
+                file = new File("SubReddit\\" + post.getSubRedditName()+ "\\"+ post.getSubRedditName());
+                FileWriter writer = new FileWriter(file, true);
+                writer.write("\\u" + post.getUserName() + "\n");// might make a problem
+                writer.write(post.getTitle());
+                writer.close();
             }
             else
             {
-                System.out.println("You already hava an account");
+                System.out.println("such a SubReddit does not exist");
             }
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("an exception");
         }
         catch (IOException e)
         {
-            System.out.println("something went wrong");
+            System.out.println("could not add the post to SubReddit");
         }
+
     }
-
-//__________________________________________________________FILE FOR POSTING____________________________________________________
-
-//    public static void crateCommentSection()
-//    {
-//    File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Comments");
-//         try
-//         {
-//             file.createNewFile();
-//             FileWriter myWriter = new FileWriter(file);
-//             myWriter.write(comment.getUserName() + "\n");
-//             myWriter.write(comment.getBody() + "\n");
-//             myWriter.close();
-//         }
-//        catch (IOException e)
-//        {
-//             System.out.println("something went wrong with comment section file");
-//        }
-//    }
-
-
     public static void writeToPostFile()
     {
         File file = new File("Posts\\" + account.getUserName() + "\\" + post.getTitle());
         try{
             if (file.createNewFile())
             {
-                String data = post.getUserName() + "\n" + post.getTitle() + "\n" + post.getBody();
+                String data = post.getUserName() + "\n" + post.getSubRedditName() + "\n" + post.getTitle() + "\n" + post.getBody();
                 Path fileName = Path.of(file.toURI());
                 Files.writeString(fileName, data);
             }
@@ -124,7 +98,6 @@ public class Main
             System.out.println("Something went wrong");
         }
     }
-
 
     public static void createDirectory()
     {
@@ -145,22 +118,6 @@ public class Main
             System.out.println("something went wrong with creating titleFile");
         }
     }
-//______________
-//    public static void readFromPostFile() throws FileNotFoundException {
-//        File file = new File("C:\\Users\\LEGION\\IdeaProjects\\Reddit\\Posts\\" + account.getUserName() +"\\" + post.getTitle());
-//        String data;
-//        Scanner myReader = new Scanner(file);
-//        while (myReader.hasNextLine())
-//        {
-//            data = myReader.nextLine();
-//            System.out.println(data);
-//        }
-//        myReader.close();
-//    }
-/// comment file
-
-
-//__________________________________________________________POSTING PROCESS_____________________________________________________
 
     public static void createPost()
     {
@@ -168,20 +125,28 @@ public class Main
         String temp;
         temp = account.getUserName();
         post.setUserName(temp);
+        System.out.println("Enter the SubReddit name:");
+        temp = input.nextLine();
+        post.setSubRedditName(temp);
+        clearScreen();
+        System.out.println("SubReddit :\\r " + temp);
         System.out.print("Title: ");
         temp = input.nextLine();
         post.setTitle(temp);
         clearScreen();
+        System.out.println("SubReddit: \\r " + post.getSubRedditName());
         System.out.println("Title: " + temp);
         System.out.println("Body: ");
         temp = input.nextLine();// how to get a paragraph?????????????????????????
         // probably hava to initials attributes
         post.setBody(temp);
         clearScreen();
+        System.out.println("SubReddit: \\r" + post.getSubRedditName());
         System.out.println("Title: " + post.getTitle());
         System.out.println("Body: " + post.getBody());
         createDirectory();
-        File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + " Comments");
+        addPostToSubReddit();
+        File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Comments");
         try{
             file.createNewFile();
             FileWriter myWriter = new FileWriter(file);
@@ -192,10 +157,10 @@ public class Main
         {
             System.out.println("Comment section is not created");
         }
-
     }
 
-    public static void showPostDetails(String title){
+    public static void showPostDetails(String title)
+    {
         File file = new File("Posts\\" + account.getUserName() +"\\"+ account.getUserName());
         try {
             Scanner fileReader=new Scanner(file);
@@ -222,9 +187,8 @@ public class Main
         }
     }
 
-    public static void accessToPosts()  {
-        boolean firstPost;
-        // reading titleFile
+    public static void accessToPosts()
+    {
         File titleFile = new File("Posts\\" + account.getUserName() +"\\"+ account.getUserName());
         try
         {
@@ -275,15 +239,20 @@ public class Main
                 Scanner input_2 = new Scanner(System.in);
                 title = input_2.nextLine();
                 showPostDetails(title);
+                post.setTitle(title);
                 clearScreen();
                 System.out.println("Press 'Q' to exit");
                 char quit = input.next().charAt(0);
                 clearScreen();
-                if(quit == 'q')
+                if(quit == 'q') {
+                    post.setFirstPost(true);
                     return;
+                }
                 break;
-            case 'q':
+            case 'q': {
+                post.setFirstPost(true);
                 break;
+            }
         }
     }
 
@@ -311,9 +280,12 @@ public class Main
         }
     }
 
-    public static void seePost() {
-        if (post.getFirstPost())
+    public static void seePost()
+    {
+        if (post.getFirstPost()) {
+            post.setFirstPost(false);
             return;
+        }
         clearScreen();
         accessToPosts();
         clearScreen();
@@ -327,7 +299,7 @@ public class Main
         System.out.println("Press 'C' if you want to see comment section");
         if (ch == 'c')
         {   clearScreen();
-            File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + " Comments");
+            File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Comments");
             try {
                 Scanner commentReader = new Scanner(file);
                 String data;
@@ -354,9 +326,94 @@ public class Main
             return;
     }
 
-//_____________________________________________________________________________________________________________________________
-// Study about throws InterruptedException in next line.
-     public static void displayMainMenu()  {
+//____________________________________________________SubReddit Process______________________________________________________________________
+    public static void joinSubReddit()
+    {
+        File subRedditData = new File("SubReddit\\" + subReddit.getName() +"\\"+ subReddit.getName()+"\\" + "members");
+        try {
+            subRedditData.createNewFile();
+            FileWriter writer = new FileWriter(subRedditData, true);
+            writer.write(account.getUserName() + "\n");
+            writer.close();
+            System.out.println("You have joined successfully");
+            sleep(2000);
+            clearScreen();
+        }
+        catch (IOException e)
+        {
+            System.out.println("could not create members file");
+        }
+    }
+    public static void createSubreddit()
+    {
+        subReddit.setMainAdmin(account.getUserName());
+        String data;
+        Scanner input = new Scanner(System.in);
+        System.out.println("Choose a SubReddit name");
+        data = input.nextLine();
+        subReddit.setName(data);
+        clearScreen();
+        System.out.println("What should be the topic");
+        data = input.nextLine();
+        subReddit.setTopic(data);
+        subReddit.setNewAdmin(account.getUserName());
+        clearScreen();
+        System.out.println("Your SubReddit is crated successfully");
+        sleep(2000);
+        clearScreen();
+        File subRedditInterface = new File("SubReddit\\" + subReddit.getName() +"\\"+ subReddit.getName());
+        File subRedditName = new File("SubReddit\\SubRedditNames");
+        subRedditInterface.getParentFile().mkdir();
+        try {
+            subRedditInterface.createNewFile();
+            FileWriter writer = new FileWriter(subRedditInterface);// may be need to add tru to the arguments of constructor
+            writer.write(subReddit.getName() + "\n");
+            writer.write("Topic:" + subReddit.getTopic() + "\n");
+            writer.close();
+            writer = new FileWriter(subRedditName,true);
+            writer.write( subReddit.getName() + "\n");// may be need to add tru to the arguments of constructor
+            writer.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println("Fail to create a SubReddit");
+        }
+    }
+    public static void searchForSubReddit(String subRedditName)
+    {
+        File subRedditNames = new File("SubReddit\\SubRedditNames");
+        try {
+            Scanner fileReader = new Scanner(subRedditNames);
+            List<String> findSubReddit = new ArrayList<>();
+            while (fileReader.hasNextLine())
+            {
+                findSubReddit.add(fileReader.nextLine());
+            }
+            if(findSubReddit.contains(subRedditName))
+            {
+                File subReddit = new File("SubReddit\\" + subRedditName +"\\" + subRedditName);
+                Scanner readSubReddit = new Scanner(subReddit);
+                String data;
+                while(readSubReddit.hasNextLine())
+                {
+                    data = readSubReddit.nextLine();
+                    System.out.println(data);
+                }
+            }
+            else
+            {
+                System.out.println("such a SubReddit does not exist");
+            }
+        }
+        catch (FileNotFoundException  e)
+        {
+            System.out.println("could not read SubRedditNames");
+        }
+    }
+
+//___________________________________________________________________________________________________________________________________________
+     public static void displayMainMenu()
+     {
          Scanner input = new Scanner(System.in);
          int pointer = 1;
          int printOnce = 1;
@@ -373,7 +430,6 @@ public class Main
              else if (ch == 's')
                  pointer++;
              else if (ch == 'e') {
-                 seePost();
                  break;
              }
              switch (pointer % 4)
@@ -396,11 +452,64 @@ public class Main
                      break;
              }
          }
+         switch (pointer % 4)
+         {
+             case 0:
+                seePost();
+                break;
+             case 2:
+                 createSubreddit();
+                 break;
+         }
      }
 
 //_______________________________________________________ACCESSING PROCESS_______________________________________________________________
 
-    public static void createAccount() {
+    public static String readFile()
+    {
+        try {
+            File file = new File("users\\" + account.getUserName());
+            String data = null;
+            Scanner myReader = new Scanner(file);
+            while (myReader.hasNextLine())
+            {
+                data += myReader.nextLine();
+            }
+            myReader.close();
+            return data;
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("could not read the account file");
+        }
+        return null;
+    }
+
+    public static void writeToFile()
+    {
+        File file = new File("users\\" + account.getUserName());
+        try {
+            if(file.createNewFile())
+            {
+                FileWriter myWriter = new FileWriter(file);
+                myWriter.write(account.getUserName()+ "\n");
+                myWriter.write(account.getUserEmail()+ "\n");
+                myWriter.write(account.getPassword());
+                myWriter.close();
+            }
+            else
+            {
+                System.out.println("You already hava an account");
+            }
+        }
+        catch (IOException e)
+        {
+            System.out.println("something went wrong");
+        }
+    }
+
+    public static void createAccount()
+    {
         Scanner input = new Scanner(System.in);
         clearScreen();
         System.out.println("Please enter your email to create an account");
@@ -429,9 +538,8 @@ public class Main
         }
     }
 
-//______________________________________________________________________________________________________________________
-
-    public static void login ()  {
+    public static void login ()
+    {
         while (true)
         {
             Scanner input = new Scanner(System.in);
@@ -511,7 +619,8 @@ public class Main
         return pointer % 2;
     }
 
-    public static void accessingProcess() {
+    public static void accessingProcess()
+    {
       int order = displayAccessingMenu();
       Scanner input = new Scanner(System.in);
       while (true)
@@ -522,7 +631,7 @@ public class Main
               createAccount();
               clearScreen();
               writeToFile();
-              System.out.println("Press 'Q' if you want to return to the previous menu ");
+              System.out.println("Press 'Q' if you want to return to the previous menu 1 ");
               char ch = input.next().charAt(0);
               if (ch == 'q')
                 {
@@ -536,7 +645,7 @@ public class Main
           {
               login();
               clearScreen();
-              System.out.println("Press 'Q' if you want to return to the previous menu");
+              System.out.println("Press 'Q' if you want to return to the previous menu 2");
               char ch = input.next().charAt(0);
               if (ch == 'q')
               {   clearScreen();
@@ -547,7 +656,7 @@ public class Main
     }
 
 //______________________________________________________________________________________________________________________________
-    public static void main(String[] args) throws  NullPointerException, FileNotFoundException{
+    public static void main(String[] args) throws NullPointerException{
         accessingProcess();
     }
 }
