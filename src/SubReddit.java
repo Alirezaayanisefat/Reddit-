@@ -3,18 +3,18 @@ import java.util.List;
 public class SubReddit {
     private String name;
     private String topic;
-    private String mainAdmin;
+    private String subRedditPassword;
     private final List <String> adminList = new ArrayList<>();
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setMainAdmin(String mainAdmin) {
-        this.mainAdmin = mainAdmin;
+    public void setSubRedditPassword(String mainAdmin) {
+        this.subRedditPassword = mainAdmin;
     }
 
-    public String getMainAdmin() {
-        return mainAdmin;
+    public String getSubRedditPassword() {
+        return subRedditPassword;
     }
 
     public void setTopic(String topic) {
@@ -34,9 +34,6 @@ public class SubReddit {
     }
 
     public boolean isAdmin(String  userName) {
-        if (adminList.contains(userName))
-            return true;
-        else
-            return false;
+        return adminList.contains(userName);
     }
 }
