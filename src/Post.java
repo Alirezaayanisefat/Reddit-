@@ -4,7 +4,7 @@ public class Post {
     private String title;
     private String body;
     private boolean hasFirstPost;
-
+    private int karma;
     public void setFirstPost(boolean firstPost) {
         this.hasFirstPost = firstPost;
     }
@@ -43,4 +43,5 @@ public class Post {
     public String getTitle() {
         return title;
     }
+
 }

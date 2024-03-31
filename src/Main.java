@@ -231,13 +231,14 @@ public class Main
 
         createDirectory();
         addPostToSubReddit();
-        File file = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Comments");
+        File postComments = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Comments");
+        File postKarma = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Karma");
         File subRedditFile = new File("SubReddit\\SubRedditNames");
         try{
             if (checkTheFileForLine(subRedditFile, post.getSubRedditName()))
             {
-                file.createNewFile();
-                FileWriter myWriter = new FileWriter(file);
+                boolean success = postComments.createNewFile();
+                FileWriter myWriter = new FileWriter(postComments);
                 myWriter.write("Comment section :\n");
                 myWriter.close();
                 addPostTimeline();
@@ -513,12 +514,12 @@ public class Main
             }
             char ch = input.next().charAt(0);
             if(ch == 'w') {
-                pointer++;
+                pointer--;
                 clearScreen();
             }
             else if(ch == 's')
             {
-                pointer--;
+                pointer++;
                 clearScreen();
             }
             if (pointer % 5 == 1) {
@@ -645,6 +646,7 @@ public class Main
                 String data;
                 data = readSubRedditUserHasJoined.nextLine();
                 File subRedditInterface = new File("SubReddit\\" + data +"\\"+ data);
+                System.out.println(data);
                 Scanner readSubRedditInterface = new Scanner(subRedditInterface);
                 while (readSubRedditInterface.hasNextLine())
                 {
@@ -724,12 +726,12 @@ public class Main
         File subRedditName = new File("SubReddit\\SubRedditNames");
         File subRedditData = new File("SubReddit\\" + subReddit.getName() +"\\"+ subReddit.getName() + "members");
         File subRedditAdminFile = new File("SubReddit\\" + subReddit.getName() +"\\"+ subReddit.getName()  + "Admins");
-        subRedditInterface.getParentFile().mkdir();
+        boolean success = subRedditInterface.getParentFile().mkdir();
         try {
 
-            subRedditData.createNewFile();
-            subRedditInterface.createNewFile();
-            subRedditAdminFile.createNewFile();
+            success = subRedditData.createNewFile();
+            success = subRedditInterface.createNewFile();
+            success = subRedditAdminFile.createNewFile();
             FileWriter writer = new FileWriter(subRedditInterface,true);// may need to add true to the arguments of constructor
             writer.write(subReddit.getName() + "\n");
             writer.write("Topic: " + subReddit.getTopic() + "\n");
@@ -802,12 +804,12 @@ public class Main
             }
             char ch = input.next().charAt(0);
             if(ch == 'w') {
-                pointer++;
+                pointer--;
                 clearScreen();
             }
             else if(ch == 's')
             {
-                pointer--;
+                pointer++;
                 clearScreen();
             }
             if (pointer % 5 == 1) {
@@ -994,12 +996,8 @@ public class Main
      {
          Scanner input = new Scanner(System.in);
          int pointer = 1;
-         int printOnce = 1;
-         if (printOnce == 1)
-         {   clearScreen();
-             System.out.println("1 _ Your profile <--\n2 _ Subreddits you hava joined\n3 _ Timeline\n4 _ Your posts");
-             printOnce++;
-         }
+         clearScreen();
+         System.out.println("1 _ Your profile <--\n2 _ Subreddits\n3 _ Timeline\n4 _ posts\n5 _ log out");
          while(true)
          {
              char ch = input.next().charAt(0);
@@ -1010,27 +1008,31 @@ public class Main
              else if (ch == 'e') {
                  break;
              }
-             switch (pointer % 4)
+             switch (pointer % 5)
              {
                  case 0:
                      clearScreen();
-                     System.out.println("1 _ Your profile\n2 _ Subreddits you hava joined\n3 _ Timeline\n4 _ Your posts <--");
+                     System.out.println("1 _ Your profile\n2 _ Subreddits\n3 _ Timeline\n4 _ posts\n5 _ log out <--");
                      break;
                  case 1:
                      clearScreen();
-                     System.out.println("1 _ Your profile <--\n2 _ Subreddits you hava joined\n3 _ Timeline\n4 _ Your posts");
+                     System.out.println("1 _ Your profile <--\n2 _ Subreddits\n3 _ Timeline\n4 _ posts\n5 _ log out");
                      break;
                  case 2:
                      clearScreen();
-                     System.out.println("1 _ Your profile\n2 _ Subreddits you hava joined <--\n3 _ Timeline\n4 _ Your posts");
+                     System.out.println("1 _ Your profile\n2 _ Subreddits <--\n3 _ Timeline\n4 _ posts\n5 _ log out");
                      break;
                  case 3:
                      clearScreen();
-                     System.out.println("1 _ Your profile\n2 _ Subreddits you hava joined\n3 _ Timeline <--\n4 _ Your posts");
+                     System.out.println("1 _ Your profile\n2 _ Subreddits\n3 _ Timeline <--\n4 _ posts\n5 _ log out");
+                     break;
+                 case 4:
+                     clearScreen();
+                     System.out.println("1 _ Your profile\n2 _ Subreddits\n3 _ Timeline\n4 _ posts <--\n5 _ log out");
                      break;
              }
          }
-         return pointer % 4;
+         return pointer % 5;
      }
 
      public static void mainMenuAccessing()
@@ -1041,11 +1043,6 @@ public class Main
          {
              switch (order)
              {
-                 case 0:
-
-                     seePost();
-                     order = displayMainMenu();
-                     break;
                  case 2:
                      userInteractionWithSubReddit();
                      order = displayMainMenu();
@@ -1054,6 +1051,16 @@ public class Main
                      seeTimeLine();
                      order = displayMainMenu();
                      break;
+                 case 4:
+
+                     seePost();
+                     order = displayMainMenu();
+                     break;
+             }
+             if (order == 0)
+             {
+                 clearScreen();
+                 break;
              }
          }
      }
@@ -1086,23 +1093,23 @@ public class Main
         File timeLine = new File("users\\" + account.getUserName() + "\\" + account.getUserName() + "TimeLine");
         File user = new File("users\\userNames");
         try {
-            if(file.getParentFile().mkdir())
+            if (account.validateEmail())
             {
-                file.createNewFile();
-                joinedSubReddit.createNewFile();
-                timeLine.createNewFile();
-                FileWriter myWriter = new FileWriter(file, true);
-                myWriter.write(account.getUserName()+ "\n");
-                myWriter.write(account.getUserEmail()+ "\n");
-                myWriter.write(account.getPassword());
-                myWriter.close();
-                myWriter = new FileWriter(user);
-                myWriter.write(account.getUserName());
-                myWriter.close();
-            }
-            else
-            {
-                System.out.println("You already hava an account");
+                if (file.getParentFile().mkdir()) {
+                    boolean success = file.createNewFile();
+                    success = joinedSubReddit.createNewFile();
+                    success = timeLine.createNewFile();
+                    FileWriter myWriter = new FileWriter(file, true);
+                    myWriter.write(account.getUserName() + "\n");
+                    myWriter.write(account.getUserEmail() + "\n");
+                    myWriter.write(account.getPassword());
+                    myWriter.close();
+                    myWriter = new FileWriter(user, true);
+                    myWriter.write(account.getUserName() + "\n");
+                    myWriter.close();
+                } else {
+                    System.out.println("You already hava an account");
+                }
             }
         }
         catch (IOException e)
@@ -1233,29 +1240,19 @@ public class Main
           clearScreen();
           if (order == 1)
           {
-              createAccount();
-              clearScreen();
-              writeToFile();
-              System.out.println("Press 'Q' if you want to return to the previous menu 1 ");
-              char ch = input.next().charAt(0);
-              if (ch == 'q')
-                {
-                    clearScreen();
-                    order = displayAccessingMenu();
-
-                }
+           createAccount();
+           clearScreen();
+           writeToFile();
+           clearScreen();
+           order = displayAccessingMenu();
 
           }
           else
           {
               login();
               clearScreen();
-              System.out.println("Press 'Q' if you want to return to the previous menu 2");
-              char ch = input.next().charAt(0);
-              if (ch == 'q')
-              {   clearScreen();
-                  order = displayAccessingMenu();
-              }// remember to add a break statement
+              order = displayAccessingMenu();
+              // remember to add a break statement
           }
       }
     }
@@ -1263,5 +1260,7 @@ public class Main
 //______________________________________________________________________________________________________________________________
     public static void main(String[] args) throws NullPointerException{
         accessingProcess();
+        // bug
+        // does not write the usernames
     }
 }
