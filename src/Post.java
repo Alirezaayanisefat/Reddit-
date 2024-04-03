@@ -1,10 +1,16 @@
+import java.io.File;
+
 public class Post {
     private String subRedditName;
     private String userName;
     private String title;
     private String body;
     private boolean hasFirstPost;
-    private int karma;
+    private String karma = "0";
+
+    public void setKarma(String karma) {
+        this.karma = karma;
+    }
     public void setFirstPost(boolean firstPost) {
         this.hasFirstPost = firstPost;
     }
@@ -40,8 +46,16 @@ public class Post {
         return subRedditName;
     }
 
+    public String getKarma() {
+        return karma;
+    }
+
     public String getTitle() {
         return title;
     }
 
+//    public  void determineKarma()
+//    {
+//        File postKarma = new File("Posts\\" + account.getUserName() +"\\" + post.getTitle() + "Karma");
+//    }
 }
