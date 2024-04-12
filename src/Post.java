@@ -176,14 +176,14 @@ public class Post {
 
     public static void addPostTimeline()
     {
-        File subRedditData = new File("SubReddit\\" + Attributes.post.getSubRedditName() +"\\"+ Attributes.post.getSubRedditName() + "members");
+        File subRedditData = new File("SubReddit\\" + Attributes.post.getSubRedditName() +"\\"+ Attributes.post.getSubRedditName() + "members.txt");
         try {
             Scanner readMembers = new Scanner(subRedditData);
             String memberName;
             while (readMembers.hasNextLine())
             {
                 memberName = readMembers.nextLine();
-                File timeLine = new File("users\\" + memberName + "\\" + memberName + "TimeLine");
+                File timeLine = new File("users\\" + memberName + "\\" + memberName + "TimeLine.txt");
                 try {
                     FileWriter writer = new FileWriter(timeLine,true);
                     writer.write(Attributes.post.getSubRedditName() + ",");
@@ -205,15 +205,16 @@ public class Post {
 
     public static void addPostToSubReddit()
     {
-        File subRedditPostFile = new File("SubReddit\\" + Attributes.post.getSubRedditName() +"\\"+ Attributes.post.getSubRedditName()  + "Posts");
+        File subRedditPostFile = new File("SubReddit\\" + Attributes.post.getSubRedditName() +"\\"+ Attributes.post.getSubRedditName()  + "Posts.txt");
         try{
 
-            File file = new File("SubReddit\\SubRedditNames");
+            File file = new File("SubReddit\\SubRedditNames.txt");
             if (checkTheFileForLine(file, Attributes.post.getSubRedditName()))
             {
                 if (!checkTheFileForLine(subRedditPostFile ,Attributes.post.getUserName() + "," +Attributes.post.getTitle()))
                 {
                     FileWriter writer = new FileWriter(subRedditPostFile, true);
+                    writer.write(Attributes.post.getSubRedditName() + ",");
                     writer.write( Attributes.post.getUserName()  + ",");// posts are written with this format on subRedditPostFile
                     writer.write(Attributes.post.getTitle() + "\n");
                     writer.close();
@@ -238,26 +239,26 @@ public class Post {
     public static void writeToPostFile()
     {
         boolean success;
-        File subRedditNames = new File("SubReddit\\SubRedditNames");// to check if the subReddit is created or not
-        File subRedditPosts = new File("SubReddit\\" +Attributes.post.getSubRedditName() + "\\" + Attributes.post.getSubRedditName() + "Posts");
-        File postKarma = new File("Posts\\" + Attributes.account.getUserName()  + "\\" + Attributes.post.getTitle() + "Karma");
-        File postComments = new File("Posts\\" + Attributes.account.getUserName() +  "\\" + Attributes.post.getTitle() + "Comments");
-
+        File subRedditNames = new File("SubReddit\\SubRedditNames.txt");// to check if the subReddit is created or not
+        File subRedditPosts = new File("SubReddit\\" +Attributes.post.getSubRedditName() + "\\" + Attributes.post.getSubRedditName() + "Posts.txt");
+        File postKarma = new File("Posts\\" + Attributes.account.getUserName()  + "\\" + Attributes.post.getTitle() + "Karma.txt");
+        File postComments = new File("Posts\\" + Attributes.account.getUserName() +  "\\" + Attributes.post.getTitle() + "Comments.txt");
+        File postUserVote = new File("Posts\\" + Attributes.account.getUserName()  + "\\" + Attributes.post.getTitle() + "userVote.txt");
 
         if (checkTheFileForLine(subRedditNames, Attributes.post.getSubRedditName()))
         {
-            File postFile = new File("Posts\\" + Attributes.account.getUserName() +  "\\" + Attributes.post.getTitle() + "_" + Attributes.post.getSubRedditName());// this is the post file name. the file where the post details are
+            File postFile = new File("Posts\\" + Attributes.account.getUserName() +  "\\" + Attributes.post.getTitle() + "_" + Attributes.post.getSubRedditName() + ".txt");// this is the post file name. the file where the post details are
             try
             {
 
-                if (!checkTheFileForLine(subRedditPosts, Attributes.post.getUserName() + "," + Attributes.post.getTitle()))
+                if (!checkTheFileForLine(subRedditPosts, Attributes.post.getSubRedditName()+ "," + Attributes.post.getTitle()))
                 {
 
 
                     success = postFile.createNewFile();
                     success = postComments.createNewFile();
                     success = postKarma.createNewFile();
-
+                    success = postUserVote.createNewFile();
                     FileWriter writer = new FileWriter(postFile);
                     writer.write("\\r" + Attributes.post.getSubRedditName() + "\n");
                     writer.write("\\u" + Attributes.post.getUserName() + "\n");
@@ -293,8 +294,8 @@ public class Post {
     // write to post file and checks to not create a post if its subReddit is not created before
     public static void createDirectory()
     {
-        File titleFile = new File("Posts\\" + Attributes.account.getUserName()  + "\\" +Attributes.account.getUserName() + "PostTitles");
-        File postFile = new File("Posts\\" + Attributes.account.getUserName() +  "\\" + Attributes.post.getTitle() + "_"+ Attributes.post.getSubRedditName());// this is the post file name. the file where the post details are
+        File titleFile = new File("Posts\\" + Attributes.account.getUserName()  + "\\" +Attributes.account.getUserName() + "PostTitles.txt");
+        File postFile = new File("Posts\\" + Attributes.account.getUserName() +  "\\" + Attributes.post.getTitle() + "_"+ Attributes.post.getSubRedditName() + ".txt");// this is the post file name. the file where the post details are
 
         boolean success;
         success = postFile.getParentFile().mkdir();
@@ -303,12 +304,14 @@ public class Post {
             if (postFile.exists())
             {
                 success = titleFile.createNewFile();
-                if (!checkTheFileForLine(titleFile, Attributes.post.getSubRedditName() +"," + Attributes.post.getTitle() + "\n"))
+                if (!checkTheFileForLine(titleFile, Attributes.post.getSubRedditName() +"," + Attributes.post.getTitle()))
                 {
                     FileWriter writer = new FileWriter(titleFile, true);
                     writer.write(  Attributes.post.getSubRedditName() + "," + Attributes.post.getTitle() + "\n");
                     writer.close();
                 }
+                else
+                    System.out.println("you have this post with this title on this subReddit");
             }
         }
         catch (IOException e)
@@ -354,14 +357,14 @@ public class Post {
 
     public static void showPostDetails()
     {
-        File postTitleFile = new File("Posts\\" + Attributes.account.getUserName() +"\\"+ Attributes.account.getUserName() +"PostTitles");
+        File postTitleFile = new File("Posts\\" + Attributes.account.getUserName() +"\\"+ Attributes.account.getUserName() +"PostTitles.txt");
 
         try {
 
             if(checkTheFileForLine(postTitleFile, Attributes.post.getSubRedditName() +"," +Attributes.post.getTitle()))
             {
                 String data;
-                File postFile = new File("Posts\\" + Attributes.account.getUserName() +  "\\" + Attributes.post.getTitle() + "_" + Attributes.post.getSubRedditName());
+                File postFile = new File("Posts\\" + Attributes.account.getUserName() +  "\\" + Attributes.post.getTitle() + "_" + Attributes.post.getSubRedditName() + ".txt");
                 Scanner postTitleFileReader= new Scanner(postFile);
 
                 while (postTitleFileReader.hasNextLine())
@@ -385,7 +388,7 @@ public class Post {
     public static void accessToPosts()
 
     {
-        File titleFile = new File("Posts\\" + Attributes.account.getUserName() +"\\"+ Attributes.account.getUserName() + "PostTitles");
+        File titleFile = new File("Posts\\" + Attributes.account.getUserName() +"\\"+ Attributes.account.getUserName() + "PostTitles.txt");
         try
         {
             Scanner fileReader = new Scanner(titleFile);
@@ -477,7 +480,7 @@ public class Post {
         System.out.println("Press 'C' if you want to see comment section");
         if (ch == 'c')
         {   clearScreen();
-            File postComments = new File("Posts\\" +Attributes.account.getUserName() + "\\" + Attributes.post.getTitle() + "Comments");
+            File postComments = new File("Posts\\" +Attributes.account.getUserName() + "\\" + Attributes.post.getTitle() + "Comments.txt");
             try {
                 Scanner commentReader = new Scanner(postComments);
                 String data;

@@ -1,4 +1,5 @@
 
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Main
@@ -22,7 +23,9 @@ public class Main
                 System.out.println("1 _ Account creation <--\n2 _ User authentication");
                 printOnce++;
             }
+
             char ch = input.next().charAt(0);
+
             if(ch == 'w') {
                 pointer++;
                 clearScreen();
@@ -32,6 +35,7 @@ public class Main
                 pointer--;
                 clearScreen();
             }
+
             if (pointer % 2 == 1) {
                 clearScreen();
                 System.out.println("1 _ Account creation <--\n2 _ User authentication");
@@ -41,18 +45,20 @@ public class Main
                 clearScreen();
                 System.out.println("1 _ Account creation\n2 _ User authentication <--");
             }
+
             if (ch == 'e')
             {
                 break;
             }
+
         }
         return pointer % 2;
     }
 
-    public static void accessingProcess()
-    {
+    public static void accessingProcess()  {
       int order = displayAccessingMenu();
       Scanner input = new Scanner(System.in);
+
       while (true)
       {
           clearScreen();
@@ -74,7 +80,7 @@ public class Main
       }
     }
 
-    public static void main(String[] args) throws NullPointerException{
+    public static void main(String[] args) throws NullPointerException {
         accessingProcess();
     }
 }

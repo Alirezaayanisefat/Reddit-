@@ -23,6 +23,7 @@ public class SubReddit {
     public static void replaceLineInFile(File file ,String oldLine, String newLine)
     {
         String filePath = file.getPath();
+        System.out.println(file);
         try
         {
             Scanner sc = new Scanner(new File(filePath));
@@ -116,13 +117,10 @@ public class SubReddit {
     }
     //__________________________________________________________________________
     private String name;
-    private String topic;
     private String subRedditPassword;
-    private final List <String> adminList = new ArrayList<>();
     public void setName(String name) {
         this.name = name;
     }
-
     public void setSubRedditPassword(String mainAdmin) {
         this.subRedditPassword = mainAdmin;
     }
@@ -131,39 +129,28 @@ public class SubReddit {
         return subRedditPassword;
     }
 
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public void setNewAdmin(String adminName) {
-         adminList.add(adminName);
-    }
-
     public String getName() {
         return name;
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
-    public boolean isAdmin(String  userName) {
-        return adminList.contains(userName);
-    }
     //_____________________________________________________________________
     public static int determineKarma()
     {
         int upVotes = 0;
         int downVotes = 0;
         List<String> votsList = new ArrayList<>();
-        File postKarma = new File("Posts\\" + Attributes.post.getUserName() + "\\" + Attributes.post.getTitle() + "Karma");
-        System.out.println(postKarma.getPath());
+
+        File postKarma = new File("Posts\\" + Attributes.post.getUserName() + "\\" + Attributes.post.getTitle() + "Karma.txt");
+
         try {
+
             Scanner readFromPostKarma = new Scanner(postKarma);
+
             while (readFromPostKarma.hasNextLine())
             {
                 votsList.add(readFromPostKarma.nextLine());
             }
+
             for (String s : votsList) {
                 if (s.equals("e")) {
                     upVotes++;
@@ -183,25 +170,55 @@ public class SubReddit {
 
     public static String getUerKarmaVote()
     {
-        File postKarma = new File("Posts\\" + Attributes.post.getUserName() + "\\" + Attributes.post.getTitle() + "Karma");
+        File postKarma = new File("Posts\\" + Attributes.post.getUserName() + "\\" + Attributes.post.getTitle() + "Karma.txt");
+        File postUserVote = new File("Posts\\" + Attributes.account.getUserName()  + "\\" + Attributes.post.getTitle() + "userVote.txt");
         Scanner input = new Scanner(System.in);
+
         int previousKarna = determineKarma();
         String oldKarma = Integer.toString(previousKarna);
+
         System.out.println("Press 'E' if you want to \"up vote\"\npress 'Q' if you want to \"down vote\"");
         char userVote = input.next().charAt(0);
         try
         {
+
             if (userVote == 'e')
             {
-                FileWriter writer = new FileWriter(postKarma, true);
-                writer.write("e\n");
-                writer.close();
+                if (checkTheFileForLine(postUserVote , Attributes.account.getUserName()))
+                {
+                    FileWriter writer = new FileWriter(postKarma, true);
+                    writer.write("q\n");
+                    writer.close();
+                    replaceLineInFile(postUserVote,  Attributes.account.getUserName(), "");
+                }
+                else
+                {
+                    FileWriter writer = new FileWriter(postKarma, true);
+                    writer.write("e\n");
+                    writer.close();
+                    writer = new FileWriter(postUserVote , true);
+                    writer.write(Attributes.account.getUserName() + "\n");
+                    writer.close();
+                }
             }
             else if(userVote == 'q')
             {
-                FileWriter writer = new FileWriter(postKarma, true);
-                writer.write("q\n");
-                writer.close();
+                if (checkTheFileForLine(postUserVote , Attributes.account.getUserName()))
+                {
+                    FileWriter writer = new FileWriter(postKarma, true);
+                    writer.write("e\n");
+                    writer.close();
+                    replaceLineInFile(postUserVote,  Attributes.account.getUserName(), "");
+                }
+                else
+                {
+                    FileWriter writer = new FileWriter(postKarma, true);
+                    writer.write("q\n");
+                    writer.close();
+                    writer = new FileWriter(postUserVote , true);
+                    writer.write(Attributes.account.getUserName() + "\n");
+                    writer.close();
+                }
             }
 
         }
@@ -213,60 +230,132 @@ public class SubReddit {
         return oldKarma;
     }// this method gets user vote
 
-    public static void giveKarma()
+    public static void giveKarma(File file)
     {
+
         clearScreen();
         Scanner userInput = new Scanner(System.in);
         String postData;
-        System.out.println("Please enter the username of the post creator: ");
-        postData = userInput.nextLine();
-        Attributes.post.setUserName(postData);
-        System.out.println("Enter the subReddit name of the post:");
-        postData = userInput.nextLine();
-        Attributes.post.setSubRedditName(postData);
-        System.out.println("Enter the postTitle please: ");
-        postData = userInput.nextLine();
-        Attributes.post.setTitle(postData);
-        File postFile = new File("Posts\\" + Attributes.post.getUserName() + "\\"  + Attributes.post.getTitle() + "_" + Attributes.post.getSubRedditName());
+        System.out.println("Please enter the post number :");
+        int postNumber = userInput.nextInt();
+        try
+        {
+
+            Scanner fileReader = new Scanner(file);
+            List<String> list = new ArrayList<>();
+
+            while (fileReader.hasNextLine())
+            {
+                postData = fileReader.nextLine();
+                list.add(postData);
+            }
+            fileReader.close();
+
+            String post = list.get(postNumber);
+
+            String subRedditName = "";
+            String username = "";
+            String postTitle = "";
+            int i = 0;
+
+            while (post.charAt(i) != ',')
+            {
+                subRedditName += post.charAt(i);
+                i++;
+            }
+            Attributes.post.setSubRedditName(subRedditName);
+            i++;
+
+            while (post.charAt(i) != ',')
+            {
+                username += post.charAt(i);
+                i++;
+            }
+            Attributes.post.setUserName(username);
+            i++;
+
+            while (i < post.length())
+            {
+                postTitle += post.charAt(i);
+                i++;
+            }
+            Attributes.post.setTitle(postTitle);
+
+            File postFile = new File( "Posts\\" + username + "\\" + postTitle + "_" + subRedditName + ".txt");
+            System.out.println(postFile);
+
+            try
+            {
+                Scanner readPostFile = new Scanner(postFile);
+                String print;
+
+                while (readPostFile.hasNextLine())
+                {
+                    print = readPostFile.nextLine();
+                    System.out.println(print);
+                }
+            }
+            catch (IOException e)
+            {
+                System.out.println("could not read postFile on give karma method");
+            }
+        }
+        catch (IOException e)
+        {
+            System.out.println("could not give karma");
+        }
+
+        File postFile = new File("Posts\\" + Attributes.post.getUserName() + "\\"  + Attributes.post.getTitle() + "_" + Attributes.post.getSubRedditName() + ".txt");
         String oldKarma = getUerKarmaVote();
         int karma = determineKarma();
         String newKarma = Integer.toString(karma);
         replaceLineInFile(postFile, "Karma : " + oldKarma, "Karma : " + newKarma);
     }
+
     public static void kickUser()
     {
-        File subRedditMemberFile = new File("SubReddit\\" + Attributes.subReddit.getName() + "\\" + Attributes.subReddit.getName() + "members");
+        File subRedditMemberFile = new File("SubReddit\\" + Attributes.subReddit.getName() + "\\" + Attributes.subReddit.getName() + "members.txt");
         System.out.println(subRedditMemberFile);
         Scanner input = new Scanner(System.in);
+
         System.out.println("Please enter the username you want to kick :");
         String userName = input.nextLine();
-        removeLineFromFile(subRedditMemberFile.getPath(), userName);
-        File joinedSubReddit = new File("user\\" + userName + "\\" + userName + "JoinedSubReddit");
-        removeLineFromFile(joinedSubReddit.getPath(), Attributes.subReddit.getName());
+        replaceLineInFile(subRedditMemberFile, userName, "");
+
+        File joinedSubReddit = new File("user\\" + userName + "\\" + userName + "JoinedSubReddit.txt");
+        replaceLineInFile(joinedSubReddit, Attributes.subReddit.getName(), "");
+
         System.out.println("The user is kicked successfully");
         sleep(2000);
         clearScreen();
     }
 
     public static void deleteComment()
-    {   File subRedditPostFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Posts");
-        File postComments = new File("Posts\\" + Attributes.account.getUserName() + "\\" + Attributes.post.getTitle() + "Comments");
+    {
+        File subRedditPostFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Posts.txt");
+        File postComments = new File("Posts\\" + Attributes.account.getUserName() + "\\" + Attributes.post.getTitle() + "Comments.txt");
         Scanner input = new Scanner(System.in);
+
         System.out.println("Please enter the username of post creator : ");
         String data = input.nextLine();
         Attributes.post.setUserName(data);
+
         System.out.println("Enter the post title : ");
         data = input.nextLine();
         Attributes.post.setTitle(data);
+
         System.out.println("Please enter the username of comment creator : ");
         data = input.nextLine();
         Attributes.comment.setUserName(data);
+
         System.out.println("Enter the comment body : ");
         data = input.nextLine();
         Attributes.comment.setBody(data);
+
         String lineToRemove ="\\u" + Attributes.comment.getUserName() + " : " + Attributes.comment.getBody();
+
         if (checkTheFileForLine(subRedditPostFile ,Attributes.post.getUserName() + "," + Attributes.post.getTitle()))
-            removeLineFromFile(postComments.getPath(), lineToRemove);
+           replaceLineInFile(postComments, lineToRemove, "");
         else
             System.out.println("This post is not on your subReddit");
         System.out.println("The comment is deleted successfully");
@@ -274,7 +363,7 @@ public class SubReddit {
     // the admins are not able to delete comments of other posts which are not on their subReddit
     public static void deletePostFromTimeLines(String subRedditName, String creatorUserName, String postTitle)
     {
-        File subRedditData = new File("SubReddit\\" + Attributes.post.getSubRedditName() +"\\"+ Attributes.post.getSubRedditName() + "members");
+        File subRedditData = new File("SubReddit\\" + Attributes.post.getSubRedditName() +"\\"+ Attributes.post.getSubRedditName() + "members.txt");
         try {
             Scanner readMembers = new Scanner(subRedditData);
             String memberName;
@@ -282,8 +371,8 @@ public class SubReddit {
             {
                 String data = subRedditName + "," + creatorUserName + "," + postTitle;
                 memberName = readMembers.nextLine();
-                File timeLine = new File("users\\" + memberName + "\\" + memberName + "TimeLine");
-                removeLineFromFile(timeLine.getPath(), data);
+                File timeLine = new File("users\\" + memberName + "\\" + memberName + "TimeLine.txt");
+               replaceLineInFile(timeLine, data, "");
             }
         }
         catch (IOException e)
@@ -294,24 +383,29 @@ public class SubReddit {
 
     public static void deletePost()
     {
-        File subRedditPostFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Posts");
+        File subRedditPostFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Posts.txt");
         //File timeLine = new File("users\\" + account.getUserName() + "\\" + account.getUserName() + "TimeLine");
         String username;
         String postTitle;
         Scanner input = new Scanner(System.in);
+
         System.out.println("Enter the post creator userName: ");
         username = input.nextLine();
+
         System.out.println("Enter the Post title: ");
         postTitle = input.nextLine();
-        File postFile = new File( "Posts\\" + username +"\\" + "\\" + postTitle + "_" + Attributes.subReddit.getName());
-        removeLineFromFile(subRedditPostFile.getPath(), username + "," + postTitle);
+
+        File postFile = new File( "Posts\\" + username +"\\" + "\\" + postTitle + "_" + Attributes.subReddit.getName() + ".txt");
+        removeLineFromFile(subRedditPostFile.getPath(), Attributes.subReddit.getName() + "," + username + "," + postTitle);
         //removeLineFromFile(timeLine, subReddit.getName() + "," + username + "," +postTitle);
-        //  deletePostFromTimeLines(subReddit.getName(), username, postTitle);
-        try {
+        deletePostFromTimeLines(Attributes.subReddit.getName(), username, postTitle);
+        try
+        {
             FileWriter writer = new FileWriter(postFile, true);
             writer.write("\nThis post is deleted from its subReddit");
             writer.close();
             clearScreen();
+
             System.out.println("You have deleted the post successfully");
             sleep(2000);
             clearScreen();
@@ -325,24 +419,30 @@ public class SubReddit {
 
     public static void addAdmin()
     {
-        File subRedditAdminFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName() + "Admins");
-        File userNames = new File("users\\userNames");
+        File subRedditAdminFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName() + "Admins.txt");
+        File userNames = new File("users\\userNames.txt");
+
         try {
             Scanner readAdminFile = new Scanner(subRedditAdminFile);
             Scanner input = new Scanner(System.in);
+
             List<String> admins = new ArrayList<>();
             while (readAdminFile.hasNextLine())
                 admins.add(readAdminFile.nextLine());
+
             if (Attributes.account.getUserName().equals(admins.get(1)))
             {
                 String newAdminName;
                 System.out.println("Please enter the new Admin userName:");
                 newAdminName = input.nextLine();
                 clearScreen();
+
                 List<String>checkNewAdminUserName = new  ArrayList<>();
                 Scanner readUserNames = new Scanner(userNames);
+
                 while (readUserNames.hasNextLine())
                     checkNewAdminUserName.add(readUserNames.nextLine());
+
                 if (checkNewAdminUserName.contains(newAdminName))
                 {
                     try
@@ -467,22 +567,28 @@ public class SubReddit {
     public static void manageSubReddit()
     {
         Scanner input = new Scanner(System.in);
+
         System.out.println("Enter the SubReddit name:");
         String subRedditName = input.nextLine();
         Attributes.subReddit.setName(subRedditName);
+
         System.out.println("Enter the password:");
         String inputPassword = input.nextLine();
         Attributes.subReddit.setSubRedditPassword(inputPassword);
+
         List<String> admins= new ArrayList<>();
-        File subRedditAdminFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName() + "Admins");
+        File subRedditAdminFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName() + "Admins.txt");
+
         try {
 
             Scanner readAdminFile = new Scanner(subRedditAdminFile);
+
             while (readAdminFile.hasNextLine())
                 admins.add(readAdminFile.nextLine());
             String password;
             password = admins.getFirst();
             admins.removeFirst();
+
             if (admins.contains(Attributes.account.getUserName()))
             {
                 if (password.equals(inputPassword))
@@ -510,9 +616,10 @@ public class SubReddit {
     // first line of admin file is password and the second line is the subreddit creator
     public static void showSubRedditUserHasJoined()
     {
-        File  joinedSubReddit = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "JoinedSubReddit");
+        File  joinedSubReddit = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "JoinedSubReddit.txt");
         Scanner userInput = new Scanner(System.in);
         String data;
+
         try
         {
             Scanner readSubRedditUserHasJoined = new Scanner(joinedSubReddit);
@@ -523,12 +630,16 @@ public class SubReddit {
             }
             System.out.println("Press 'E' to access to subReddit\nPress 'Q' to return to SubReddit Menu");
             char userChoice = userInput.next().charAt(0);
+
             if (userChoice == 'e')
-            {   Scanner input = new Scanner(System.in);
+            {
+                Scanner input = new Scanner(System.in);
                 System.out.println("Enter SubReddit name:");
                 data = input.nextLine();
-                File subRedditInterface = new File("SubReddit\\" + data +"\\"+ data + "Posts");
+
+                File subRedditInterface = new File("SubReddit\\" + data +"\\"+ data + "Posts.txt");
                 Scanner readSubRedditInterface = new Scanner(subRedditInterface);
+
                 while (readSubRedditInterface.hasNextLine())
                 {
                     data = readSubRedditInterface.nextLine();
@@ -548,8 +659,8 @@ public class SubReddit {
     public static void joinSubReddit()
     {
         // name is initialize during the search to prevent name from staying null
-        File subRedditData = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName() + "members");
-        File  joinedSubReddit = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "JoinedSubReddit");
+        File subRedditData = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName() + "members.txt");
+        File  joinedSubReddit = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "JoinedSubReddit.txt");
         try {
             List<String> memberShip = new ArrayList<>();
             Scanner readSubRedditMemberData = new Scanner(subRedditData);
@@ -561,9 +672,11 @@ public class SubReddit {
                     FileWriter writer = new FileWriter(subRedditData, true);
                     writer.write(Attributes.account.getUserName() + "\n");
                     writer.close();
+
                     writer = new FileWriter(joinedSubReddit,true);
                     writer.write(Attributes.subReddit.getName() + "\n");
                     writer.close();
+
                     System.out.println("You have joined successfully");
                     sleep(2000);
                     clearScreen();
@@ -593,22 +706,20 @@ public class SubReddit {
         data = input.nextLine();
         Attributes.subReddit.setName(data);
         clearScreen();
-        System.out.println("What should be the topic");
-        data = input.nextLine();
-        Attributes.subReddit.setTopic(data);
-        Attributes.subReddit.setNewAdmin(Attributes.account.getUserName());
-        clearScreen();
+
         System.out.println("Enter subReddit password");
         data = input.nextLine();
         Attributes.subReddit.setSubRedditPassword(data);
         clearScreen();
         sleep(2000);
         clearScreen();
-        File subRedditName = new File("SubReddit\\SubRedditNames");
-        File subRedditData = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName() + "members");
-        File subRedditAdminFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Admins");// first line in this file is subReddit name and the second line is the owner username
-        File subRedditPostFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Posts");
+
+        File subRedditName = new File("SubReddit\\SubRedditNames.txt");
+        File subRedditData = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName() + "members.txt");
+        File subRedditAdminFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Admins.txt");// first line in this file is subReddit name and the second line is the owner username
+        File subRedditPostFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Posts.txt");
         // the if does not work fix it
+
         if (!checkTheFileForLine(subRedditName, subRedditName.getName()))
         {
             boolean success = subRedditPostFile.getParentFile().mkdir();
@@ -618,14 +729,17 @@ public class SubReddit {
                 success = subRedditPostFile.createNewFile();
                 success = subRedditAdminFile.createNewFile();
                 success = subRedditPostFile.createNewFile();
+
                 FileWriter writer;
                 writer = new FileWriter(subRedditName, true);
                 writer.write(Attributes.subReddit.getName() + "\n");// may need to add tru to the arguments of constructor
                 writer.close();
+
                 writer = new FileWriter(subRedditAdminFile, true);
                 writer.write(Attributes.subReddit.getSubRedditPassword() + "\n");
                 writer.write(Attributes.account.getUserName() + "\n");
                 writer.close();
+
                 System.out.println("Your SubReddit is crated successfully");
             } catch (IOException e) {
                 System.out.println("Fail to create a SubReddit");
@@ -643,42 +757,63 @@ public class SubReddit {
     //and also a file will be created where the subreddit password and admin names are saved
     public static void searchForSubReddit(String subRedditName)
     {
-        File subRedditNames = new File("SubReddit\\SubRedditNames");
+        File subRedditNames = new File("SubReddit\\SubRedditNames.txt");
         try {
             if(checkTheFileForLine(subRedditNames, subRedditName))
-            {   Attributes.subReddit.setName(subRedditName);// subReddit name is assigned here to use in joining to subReedits method
-                File subReddit = new File("SubReddit\\" + subRedditName +"\\" + subRedditName + "Posts");
+            {
+                Attributes.subReddit.setName(subRedditName);// subReddit name is assigned here to use in joining to subReedits method
+
+                File subReddit = new File("SubReddit\\" + subRedditName +"\\" + subRedditName + "Posts.txt");
                 Scanner readSubReddit = new Scanner(subReddit);
                 String data;
                 String username = "";
                 String postTitle = "";
+                int i;
+                int postNumber = 0;
                 while(readSubReddit.hasNextLine())
-                {   username = "";
+                {
+                    subRedditName = "";
+                    username = "";
                     postTitle = "";
+                    i = 0;
                     data = readSubReddit.nextLine();
-                    int i = 0;
+
+                    while (data.charAt(i) != ',')
+                    {
+                        subRedditName += data.charAt(i);
+                        i++;
+                    }
+
+                    i++;
+
                     while (data.charAt(i) != ',')
                     {
                         username += data.charAt(i);
                         i++;
                     }
+
                     i++;
-                    while (i < data.length()) {
+
+                    while (i < data.length())
+                    {
                         postTitle += data.charAt(i);
                         i++;
                     }
-                    File postFile = new File( "Posts\\" + username + "\\" + postTitle + "_" + subRedditName);
+
+                    File postFile = new File( "Posts\\" + username + "\\" + postTitle + "_" + subRedditName + ".txt");
+
                     try
                     {
                         Scanner readPostFile = new Scanner(postFile);
                         String print;
+                        System.out.println(postNumber);
                         while (readPostFile.hasNextLine())
                         {
                             print = readPostFile.nextLine();
                             System.out.println(print);
                         }
                         System.out.println("___________________________");
-
+                        postNumber++;
                     }
                     catch (IOException e)
                     {
@@ -701,7 +836,7 @@ public class SubReddit {
         }
     }
     // this method searches subReddit based on their name
-    // and prints the posts in them
+    // and prints the posts in them000000
     public static int displaySubRedditMenu()
     {
         Scanner input = new Scanner(System.in);
@@ -755,22 +890,26 @@ public class SubReddit {
     public static void userInteractionWithSubReddit()
     {
         int order = displaySubRedditMenu();
+        File subReddit = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\" + Attributes.subReddit.getName() + "Posts.txt");
         Scanner input = new Scanner(System.in);
         Scanner input_2 = new Scanner(System.in);
         while (true)
         {
             clearScreen();
+
             if (order == 1)
             {
                 System.out.println("Enter SubReddit name:");
                 String subRedditNameForSearch = input_2.nextLine();
                 searchForSubReddit(subRedditNameForSearch);
+
                 if (Attributes.post.getFirstPost())
                 {
                     Attributes.post.setFirstPost(false);
                     return;
                 }
                 clearScreen();
+
                 System.out.print("""
                         Press 'E' if you want to join to this Subreddit
                         Press 'Q' if you want to return to the previous menu 
@@ -778,6 +917,7 @@ public class SubReddit {
                         Press 'K' if you want to give karam
                         """);
                 char ch = input.next().charAt(0);
+
                 if (ch == 'q')
                 {
                     clearScreen();
@@ -797,7 +937,7 @@ public class SubReddit {
                 }
                 else if(ch == 'k')
                 {
-                    giveKarma();
+                    giveKarma(subReddit);
                     order = displaySubRedditMenu();
                 }
             }
@@ -805,13 +945,16 @@ public class SubReddit {
             {
                 createSubreddit();
                 clearScreen();
+
                 System.out.println("Press 'Q' if you want to return to the previous menu");
                 char ch = input.next().charAt(0);
+
                 if (ch == 'q') {
                     clearScreen();
                     order = displaySubRedditMenu();
                 }// remember to add a break statement
-                else {
+                else
+                {
                     System.out.println("This subReddit with this name already exists");
                     sleep(2000);
                     clearScreen();
@@ -842,6 +985,7 @@ public class SubReddit {
     {
         Scanner input = new Scanner(System.in);
         System.out.println("Press 'C' if you want to comment\nPress 'E' if you want Create your own post\nPress 'K' if you want to \"up vote\" or \"down vote\"\nPress 'Q' to return to main menu");
+        File timeLineFile = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "TimeLine.txt");
         char ch = input.next().charAt(0);
         if (ch == 'c')
         {
@@ -860,55 +1004,65 @@ public class SubReddit {
         }
         else if (ch == 'k')
         {
-            giveKarma();
+            giveKarma(timeLineFile);
         }
     }
 
     public static void seeTimeLine()
-    {   File timeLine = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "TimeLine");
-        File postKarma = new File("Posts\\" +Attributes.account.getUserName() +"\\" + Attributes.post.getTitle() + "Karma");
+    {   File timeLine = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "TimeLine.txt");
+
         try {
+
             Scanner readTimeLineFile = new Scanner(timeLine);
             String data = null;
             int i;
             String username;
             String postTitle;
             String subRedditName;
+            int postNumber = 0;
             while (readTimeLineFile.hasNextLine())
             {   subRedditName = "";
                 username = "";
                 postTitle = "";
                 i = 0;
                 data =readTimeLineFile.nextLine();
+
                 while (data.charAt(i) != ',')
                 {
                     subRedditName += data.charAt(i);
                     i++;
                 }
+
                 i++;
+
                 while (data.charAt(i) != ',')
                 {
                     username += data.charAt(i);
                     i++;
                 }
+
                 i++;
+
                 while (i < data.length())
                 {
                     postTitle += data.charAt(i);
                     i++;
                 }
-                File postFile = new File( "Posts\\" + username + "\\" + postTitle + "_" + subRedditName);
-                System.out.println(postFile);
+
+                File postFile = new File( "Posts\\" + username + "\\" + postTitle + "_" + subRedditName + ".txt");
                 try
                 {
                     Scanner readPostFile = new Scanner(postFile);
                     String print;
+
+                    System.out.print(postNumber + " _ ");
                     while (readPostFile.hasNextLine())
                     {
                         print = readPostFile.nextLine();
                         System.out.println(print);
                     }
                     System.out.println("___________________________");
+                    postNumber++;
                 }
                 catch (IOException e)
                 {
