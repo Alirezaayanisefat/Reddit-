@@ -72,7 +72,8 @@ public class AccountCreation
         this.password = password;
     }
 
-    public boolean validateEmail() {
+    public boolean validateEmail()
+    {
         // Regular expression for email validation
         String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         Pattern pattern = Pattern.compile(regex);
@@ -349,7 +350,8 @@ public class AccountCreation
             Scanner userInput = new Scanner(System.in);
             System.out.println("You should search for subreddits with\" \\r \"format an for user with \"\\u format \"");
             System.out.println("Search : ");
-
+            File subRedditNames = new File("SubReddit\\SubRedditNames.txt");
+            File user = new File("users\\userNames.txt");
             while (true) {
                 String searchResult = userInput.nextLine();
                 String result = searchResult.substring(2);
@@ -357,13 +359,29 @@ public class AccountCreation
                 if (searchFormat.equals("\\r"))
                 {
                     clearScreen();
-                    searchForSubRedditOnMainSearch(result);
+                    if (checkTheFileForLine(subRedditNames, result))
+                        searchForSubRedditOnMainSearch(result);
+                    else
+                    {
+                        System.out.println("this subReddit does not exist");
+                        sleep(2000);
+                        clearScreen();
+                    }
                     break;
                 }
                 if (searchFormat.equals("\\u")) {
                     clearScreen();
-                    usersRegexSearch(result);
-                    clearScreen();
+                    if (checkTheFileForLine(user, result))
+                    {
+                        usersRegexSearch(result);
+                        clearScreen();
+                    }
+                    else
+                    {
+                        System.out.println("this userName does not exists");
+                        sleep(2000);
+                        clearScreen();
+                    }
                     break;
                 } else {
                     System.out.println("Choose True Format");
@@ -408,7 +426,6 @@ public class AccountCreation
     public static void editProfile ()
     {
             File userProfile = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "Profile.txt");
-            File userNames = new File("users\\userNames.txt");
             int order = displayEditProfileMenu();
             Scanner input = new Scanner(System.in);
             while (true) {
@@ -460,7 +477,7 @@ public class AccountCreation
                 myReader.close();
                 return data;
             } catch (FileNotFoundException e) {
-                System.out.println("could not read the userProfile file in readFile method");
+                System.out.println();
             }
             return null;
         }

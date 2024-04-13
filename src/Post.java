@@ -9,7 +9,6 @@ public class Post {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
-
     public static void sleep(long millis)
     {
         try {
@@ -18,28 +17,6 @@ public class Post {
         catch (InterruptedException er)
         {
             System.out.println("Something went wrong");
-        }
-    }
-    public static void replaceLineInFile(File file ,String oldLine, String newLine)
-    {
-        String filePath = file.getPath();
-        try
-        {
-            Scanner sc = new Scanner(new File(filePath));
-            StringBuilder buffer = new StringBuilder();
-            while (sc.hasNextLine()) {
-                buffer.append(sc.nextLine()).append(System.lineSeparator());
-            }
-            String fileContents = buffer.toString();
-            sc.close();
-            fileContents = fileContents.replaceAll(oldLine, newLine);
-            FileWriter writer = new FileWriter(filePath);
-            writer.append(fileContents);
-            writer.flush();
-        }
-        catch (IOException e)
-        {
-            System.out.println("Problem reading file.");
         }
     }
     public static boolean checkTheFileForLine(File file, String line)
@@ -59,60 +36,6 @@ public class Post {
             System.out.println("could not find the given file in check the file method");
         }
         return false;
-    }
-    public static void removeLineFromFile(String filePath, String lineToRemove)
-    {
-
-        try {
-            System.out.println(filePath);
-            File inFile = new File(filePath);
-
-            if (!inFile.isFile()) {
-                System.out.println("Parameter is not an existing file");
-                return;
-            }
-
-            //Construct the new file that will later be renamed to the original filename.
-            File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
-
-            BufferedReader br = new BufferedReader(new FileReader(filePath));
-            PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
-
-            String line = null;
-
-            //Read from the original file and write to the new
-            //unless content matches data to be removed.
-            while ((line = br.readLine()) != null) {
-
-                if (!line.trim().equals(lineToRemove)) {
-
-                    pw.println(line);
-                    pw.flush();
-                }
-            }
-            pw.close();
-            br.close();
-
-            //Delete the original file
-            if (!inFile.delete()) {
-                System.out.println("Could not delete file");
-                return;
-            }
-//            Path p = Paths.get(filePath);
-//            try {
-//                Files.delete(p);
-//            } catch (IOException e) {
-//                // the exception will explain everything there is to be said about why it did not work!
-//            }
-
-            //Rename the new file to the filename the original file had.
-            if (!tempFile.renameTo(inFile))
-                System.out.println("Could not rename file");
-
-        }
-        catch (IOException ex) {
-            ex.printStackTrace();
-        }
     }
     //_____________________________________________________________________
     private String subRedditName;
@@ -211,7 +134,7 @@ public class Post {
             File file = new File("SubReddit\\SubRedditNames.txt");
             if (checkTheFileForLine(file, Attributes.post.getSubRedditName()))
             {
-                if (!checkTheFileForLine(subRedditPostFile ,Attributes.post.getUserName() + "," +Attributes.post.getTitle()))
+                if (!checkTheFileForLine(subRedditPostFile ,Attributes.post.getSubRedditName() + "," +Attributes.post.getUserName() + "," +Attributes.post.getTitle()))
                 {
                     FileWriter writer = new FileWriter(subRedditPostFile, true);
                     writer.write(Attributes.post.getSubRedditName() + ",");
@@ -311,7 +234,7 @@ public class Post {
                     writer.close();
                 }
                 else
-                    System.out.println("you have this post with this title on this subReddit");
+                    System.out.println("Sorry you have this post with this title on this subReddit");
             }
         }
         catch (IOException e)

@@ -134,6 +134,7 @@ public class SubReddit {
     }
 
     //_____________________________________________________________________
+
     public static int determineKarma()
     {
         int upVotes = 0;
@@ -167,6 +168,39 @@ public class SubReddit {
         }
         return (upVotes - downVotes);
     }
+//    public static String getUerKarmaVote()
+//    {
+//        File postKarma = new File("Posts\\" + Attributes.post.getUserName() + "\\" + Attributes.post.getTitle() + "Karma");
+//        Scanner input = new Scanner(System.in);
+//
+//        int previousKarna = determineKarma();
+//        String oldKarma = Integer.toString(previousKarna);
+//
+//        System.out.println("Press 'E' if you want to \"up vote\"\npress 'Q' if you want to \"down vote\"");
+//        char userVote = input.next().charAt(0);
+//        try
+//        {
+//            if (userVote == 'e')
+//            {
+//                FileWriter writer = new FileWriter(postKarma, true);
+//                writer.write("e\n");
+//                writer.close();
+//            }
+//            else if(userVote == 'q')
+//            {
+//                FileWriter writer = new FileWriter(postKarma, true);
+//                writer.write("q\n");
+//                writer.close();
+//            }
+//
+//        }
+//        catch (IOException e)
+//        {
+//            System.out.println("could not find the postKarma file in getUser karma method");
+//        }
+//        clearScreen();
+//        return oldKarma;
+//    }// this method gets user vote
 
     public static String getUerKarmaVote()
     {
@@ -189,7 +223,7 @@ public class SubReddit {
                     FileWriter writer = new FileWriter(postKarma, true);
                     writer.write("q\n");
                     writer.close();
-                    replaceLineInFile(postUserVote,  Attributes.account.getUserName(), "");
+                    replaceLineInFile(postUserVote,  Attributes.account.getUserName(),"");
                 }
                 else
                 {
@@ -208,7 +242,7 @@ public class SubReddit {
                     FileWriter writer = new FileWriter(postKarma, true);
                     writer.write("e\n");
                     writer.close();
-                    replaceLineInFile(postUserVote,  Attributes.account.getUserName(), "");
+                    replaceLineInFile(postUserVote,  Attributes.account.getUserName(),"");
                 }
                 else
                 {
@@ -312,54 +346,6 @@ public class SubReddit {
         replaceLineInFile(postFile, "Karma : " + oldKarma, "Karma : " + newKarma);
     }
 
-    public static void kickUser()
-    {
-        File subRedditMemberFile = new File("SubReddit\\" + Attributes.subReddit.getName() + "\\" + Attributes.subReddit.getName() + "members.txt");
-        System.out.println(subRedditMemberFile);
-        Scanner input = new Scanner(System.in);
-
-        System.out.println("Please enter the username you want to kick :");
-        String userName = input.nextLine();
-        replaceLineInFile(subRedditMemberFile, userName, "");
-
-        File joinedSubReddit = new File("user\\" + userName + "\\" + userName + "JoinedSubReddit.txt");
-        replaceLineInFile(joinedSubReddit, Attributes.subReddit.getName(), "");
-
-        System.out.println("The user is kicked successfully");
-        sleep(2000);
-        clearScreen();
-    }
-
-    public static void deleteComment()
-    {
-        File subRedditPostFile = new File("SubReddit\\" + Attributes.subReddit.getName() +"\\"+ Attributes.subReddit.getName()  + "Posts.txt");
-        File postComments = new File("Posts\\" + Attributes.account.getUserName() + "\\" + Attributes.post.getTitle() + "Comments.txt");
-        Scanner input = new Scanner(System.in);
-
-        System.out.println("Please enter the username of post creator : ");
-        String data = input.nextLine();
-        Attributes.post.setUserName(data);
-
-        System.out.println("Enter the post title : ");
-        data = input.nextLine();
-        Attributes.post.setTitle(data);
-
-        System.out.println("Please enter the username of comment creator : ");
-        data = input.nextLine();
-        Attributes.comment.setUserName(data);
-
-        System.out.println("Enter the comment body : ");
-        data = input.nextLine();
-        Attributes.comment.setBody(data);
-
-        String lineToRemove ="\\u" + Attributes.comment.getUserName() + " : " + Attributes.comment.getBody();
-
-        if (checkTheFileForLine(subRedditPostFile ,Attributes.post.getUserName() + "," + Attributes.post.getTitle()))
-           replaceLineInFile(postComments, lineToRemove, "");
-        else
-            System.out.println("This post is not on your subReddit");
-        System.out.println("The comment is deleted successfully");
-    }
     // the admins are not able to delete comments of other posts which are not on their subReddit
     public static void deletePostFromTimeLines(String subRedditName, String creatorUserName, String postTitle)
     {
@@ -481,7 +467,7 @@ public class SubReddit {
         Scanner input = new Scanner(System.in);
         clearScreen();
         int pointer = 1;
-        System.out.println("1 _ Add a new Admin <--\n2 _ Delete a post\n3 _ Delete a comment\n4 _ Kick a user\n5 _ Return to Main Menu");
+        System.out.println("1 _ Add a new Admin <--\n2 _ Delete a post\n5 _ Return to SubReddit Menu");
         while (true)
         {
             char ch = input.next().charAt(0);
@@ -494,36 +480,31 @@ public class SubReddit {
                 pointer++;
                 clearScreen();
             }
-            if (pointer % 5 == 1) {
+            if (pointer % 3 == 1) {
                 clearScreen();
-                System.out.println("1 _ Add a new Admin <--\n2 _ Delete a post\n3 _ Delete a comment\n4 _ Kick a user\n5 _ Return to Main Menu");
+                System.out.println("1 _ Add a new Admin <--\n2 _ Delete a post\n3 _ Return to SubReddit Menu");
             }
-            else if (pointer % 5 == 2)
+            else if (pointer % 3 == 2)
             {
                 clearScreen();
-                System.out.println("1 _ Add a new Admin\n2 _ Delete a post <--\n3 _ Delete a comment\n4 _ Kick a user\n5 _ Return to Main Menu");
+                System.out.println("1 _ Add a new Admin\n2 _ Delete a post <--\n3 _ Return to SubReddit Menu");
             }
-            else if (pointer % 5 == 3)
+            else if (pointer % 3 == 3)
             {
                 clearScreen();
-                System.out.println("1 _ Add a new Admin\n2 _ Delete a post\n3 _ Delete a comment <--\n4 _ Kick a user\n5 _ Return to Main Menu");
-            }
-            else if(pointer % 5 == 4)
-            {
-                clearScreen();
-                System.out.println("1 _ Add a new Admin\n2 _ Delete a post\n3 _ Delete a comment\n4 _ Kick a user <--\n5 _ Return to Main Menu");
+                System.out.println("1 _ Add a new Admin\n2 _ Delete a post\n3 _ Return to SubReddit Menu");
             }
             else
             {
                 clearScreen();
-                System.out.println("1 _ Add a new Admin\n2 _ Delete a post\n3 _ Delete a comment\n4 _ Kick a user\n5 _ Return to Main Menu <--");
+                System.out.println("1 _ Add a new Admin\n2 _ Delete a post\n3 _ Return to SubReddit Menu <--");
             }
             if (ch == 'e')
             {
                 break;
             }
         }
-        return pointer % 5;
+        return pointer % 3;
     }
 
     public static void accessToSubReddit()
@@ -541,18 +522,6 @@ public class SubReddit {
             else if (order == 2)
             {
                 deletePost();
-                clearScreen();
-                order = displayAccessToSubRedditMenu();
-            }
-            else if (order == 3)
-            {
-                deleteComment();
-                clearScreen();
-                order = displayAccessToSubRedditMenu();
-            }
-            else if (order == 4)
-            {
-                kickUser();
                 clearScreen();
                 order = displayAccessToSubRedditMenu();
             }
@@ -729,18 +698,23 @@ public class SubReddit {
                 success = subRedditPostFile.createNewFile();
                 success = subRedditAdminFile.createNewFile();
                 success = subRedditPostFile.createNewFile();
+                if (!checkTheFileForLine(subRedditName, subRedditName.getName()))
+                {
+                    FileWriter writer;
+                    writer = new FileWriter(subRedditName, true);
+                    writer.write(Attributes.subReddit.getName() + "\n");// may need to add tru to the arguments of constructor
+                    writer.close();
 
-                FileWriter writer;
-                writer = new FileWriter(subRedditName, true);
-                writer.write(Attributes.subReddit.getName() + "\n");// may need to add tru to the arguments of constructor
-                writer.close();
-
-                writer = new FileWriter(subRedditAdminFile, true);
-                writer.write(Attributes.subReddit.getSubRedditPassword() + "\n");
-                writer.write(Attributes.account.getUserName() + "\n");
-                writer.close();
-
-                System.out.println("Your SubReddit is crated successfully");
+                    writer = new FileWriter(subRedditAdminFile, true);
+                    writer.write(Attributes.subReddit.getSubRedditPassword() + "\n");
+                    writer.write(Attributes.account.getUserName() + "\n");
+                    writer.close();
+                    System.out.println("Your SubReddit is crated successfully");
+                }
+                else
+                {
+                    System.out.println("this subreddit already exists, choose another name");
+                }
             } catch (IOException e) {
                 System.out.println("Fail to create a SubReddit");
             }
@@ -984,18 +958,13 @@ public class SubReddit {
     public static void interactionWithTimeLine()
     {
         Scanner input = new Scanner(System.in);
-        System.out.println("Press 'C' if you want to comment\nPress 'E' if you want Create your own post\nPress 'K' if you want to \"up vote\" or \"down vote\"\nPress 'Q' to return to main menu");
+        System.out.println("Press 'C' if you want to comment\nPress 'K' if you want to \"up vote\" or \"down vote\"\nPress 'Q' to return to main menu");
         File timeLineFile = new File("users\\" + Attributes.account.getUserName() + "\\" + Attributes.account.getUserName() + "TimeLine.txt");
         char ch = input.next().charAt(0);
         if (ch == 'c')
         {
             clearScreen();
             Comment.giveCommentOnSubReddit();
-        }
-        else if (ch == 'e')
-        {
-            clearScreen();
-            Post.createPost();
         }
         else if(ch == 'q')
         {

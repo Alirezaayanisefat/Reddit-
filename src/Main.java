@@ -55,7 +55,8 @@ public class Main
         return pointer % 2;
     }
 
-    public static void accessingProcess()  {
+    public static void accessingProcess()
+    {
       int order = displayAccessingMenu();
       Scanner input = new Scanner(System.in);
 
@@ -80,7 +81,15 @@ public class Main
       }
     }
 
-    public static void main(String[] args) throws NullPointerException {
-        accessingProcess();
+    public static void main(String[] args)  {
+        while (true)
+        {
+            try {
+                accessingProcess();
+                break;
+            } catch (NullPointerException e) {
+                System.out.println("such an account does not exist!");
+            }
+        }
     }
 }
